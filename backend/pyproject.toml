@@ -1,0 +1,13 @@
+[project]
+name = "interviewpilot-backend"
+version = "0.1.0"
+description = "InterviewPilot Backend - AI Interview Agent System"
+requires-python = ">=3.10"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
