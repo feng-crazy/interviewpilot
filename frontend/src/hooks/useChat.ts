@@ -44,7 +44,7 @@ export function useChat(interviewId: string) {
     });
 
     // Listen for 'end' events (interview ended)
-    eventSource.addEventListener('end', (event: MessageEvent) => {
+    eventSource.addEventListener('end', () => {
       setIsStreaming(false);
       eventSource.close();
     });

@@ -87,7 +87,11 @@ export default function CandidatePage() {
     <div className="chat-container">
       <div style={{ padding: '1rem', background: '#f8fafc' }}>
         <h3>AI面试 - {config?.jd_text?.slice(0, 50)}...</h3>
-        <span style={{ color: connected ? '#22c55e' : '#ef4444' }}>
+        <span 
+          aria-live="polite" 
+          aria-atomic="true"
+          style={{ color: connected ? '#22c55e' : '#ef4444' }}
+        >
           {connected ? '已连接' : '未连接'}
         </span>
       </div>

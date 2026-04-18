@@ -93,10 +93,18 @@ export default function InterviewerPage() {
       <div style={{ padding: '1rem', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h3>面试监控 - {config?.jd_text?.slice(0, 30)}...</h3>
-          <span style={{ color: connected ? '#22c55e' : '#ef4444' }}>
+          <span 
+            aria-live="polite" 
+            aria-atomic="true"
+            style={{ color: connected ? '#22c55e' : '#ef4444' }}
+          >
             {connected ? '已连接' : '未连接'}
           </span>
-          <span style={{ marginLeft: '1rem', color: aiManaged ? '#2563eb' : '#f59e0b' }}>
+          <span 
+            aria-live="polite" 
+            aria-atomic="true"
+            style={{ marginLeft: '1rem', color: aiManaged ? '#2563eb' : '#f59e0b' }}
+          >
             {aiManaged ? 'AI托管' : '手动模式'}
           </span>
           {config?.candidate_url && (
