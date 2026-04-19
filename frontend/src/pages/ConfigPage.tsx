@@ -48,10 +48,15 @@ export default function ConfigPage() {
   }
 
   async function handleOptimize(fieldType: string, currentContent: string) {
+    const context = buildContext(fieldType, formData);
+    if (!currentContent.trim() && Object.keys(context).length === 0) {
+      alert('请先输入内容或填写其他配置项');
+      return;
+    }
+
     setOptimizeLoading({ ...optimizeLoading, [fieldType]: true });
 
     try {
-      const context = buildContext(fieldType, formData);
       const result = await optimizeContent(fieldType, currentContent, context);
 
       const fieldNameMap: Record<string, string> = {
@@ -209,7 +214,7 @@ export default function ConfigPage() {
                 type="number"
                 className="input"
                 value={formData.max_questions}
-                onChange={(e) => setFormData({ ...formData, max_questions: parseInt(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, max_questions: parseInt(e.target.value) || 10 })}
                 min={1}
                 max={50}
               />
@@ -220,7 +225,7 @@ export default function ConfigPage() {
                 type="number"
                 className="input"
                 value={formData.max_duration}
-                onChange={(e) => setFormData({ ...formData, max_duration: parseInt(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, max_duration: parseInt(e.target.value) || 30 })}
                 min={5}
                 max={120}
               />
