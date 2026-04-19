@@ -54,3 +54,16 @@ export const getReport = async (id: string) => {
   const response = await api.get(`/report/${id}`);
   return response.data;
 };
+
+export const optimizeContent = async (
+  fieldType: string,
+  fieldContent: string,
+  context: Record<string, string>
+) => {
+  const response = await api.post('/optimize', {
+    field_type: fieldType,
+    field_content: fieldContent,
+    context,
+  });
+  return response.data;
+};
