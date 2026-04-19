@@ -10,6 +10,7 @@ from .api.routes.control import router as control_router
 from .api.routes.websocket import router as websocket_router
 from .api.routes.report import router as report_router
 from .api.routes.speech import router as speech_router
+from .api.routes.optimize import router as optimize_router
 
 settings = get_settings()
 
@@ -40,6 +41,7 @@ app.include_router(control_router, tags=["control"])
 app.include_router(websocket_router, tags=["websocket"])
 app.include_router(report_router, tags=["report"])
 app.include_router(speech_router, tags=["speech"])
+app.include_router(optimize_router, tags=["optimize"])
 
 
 @app.get("/")
