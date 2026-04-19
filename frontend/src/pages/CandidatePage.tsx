@@ -76,21 +76,29 @@ export default function CandidatePage() {
 
   if (interviewEnded) {
     return (
-      <div className="card" style={{ textAlign: 'center', padding: '4rem' }}>
+      <div className="card" style={{ textAlign: 'center', padding: 'var(--spacing-3xl)', maxWidth: '600px', margin: '0 auto' }}>
+        <div className="empty-state-icon">✓</div>
         <h2>面试已结束</h2>
-        <p style={{ color: '#64748b' }}>感谢您的参与，祝您一切顺利！</p>
+        <p style={{ color: 'var(--color-gray-600)', marginTop: 'var(--spacing-md)' }}>
+          感谢您的参与，祝您一切顺利！
+        </p>
       </div>
     );
   }
 
   return (
     <div className="chat-container">
-      <div style={{ padding: '1rem', background: '#f8fafc' }}>
-        <h3>AI面试 - {config?.jd_text?.slice(0, 50)}...</h3>
+      <div className="chat-header">
+        <div>
+          <h3 className="chat-header-title">AI面试</h3>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginTop: 'var(--spacing-xs)' }}>
+            {config?.jd_text?.slice(0, 50)}...
+          </p>
+        </div>
         <span 
           aria-live="polite" 
           aria-atomic="true"
-          style={{ color: connected ? '#22c55e' : '#ef4444' }}
+          className={`status-badge ${connected ? 'status-badge-success' : 'status-badge-error'}`}
         >
           {connected ? '已连接' : '未连接'}
         </span>
@@ -99,53 +107,61 @@ export default function CandidatePage() {
       <div className="chat-messages">
         {messages.map((msg) => (
           <div key={msg.id} className={`message ${msg.role}`}>
-            <strong>{msg.role === 'ai' ? 'AI面试官' : '面试者'}:</strong>
-            <p>{msg.content}</p>
+            <div className="message-role">
+              {msg.role === 'ai' ? 'AI面试官' : '面试者'}
+            </div>
+            <div className="message-content">{msg.content}</div>
           </div>
         ))}
         
         {isStreaming && (
           <div className="message ai">
-            <strong>AI面试官:</strong>
-            <p>{streamingContent}<span className="streaming-cursor" /></p>
+            <div className="message-role">AI面试官</div>
+            <div className="message-content">
+              {streamingContent}<span className="streaming-cursor" />
+            </div>
           </div>
         )}
       </div>
 
       <div className="chat-input">
         {!ready ? (
-          <button className="button" onClick={handleReady} style={{ width: '100%' }}>
-            准备好了
-          </button>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ color: 'var(--color-gray-600)', marginBottom: 'var(--spacing-md)', fontSize: '0.875rem' }}>
+              面试即将开始，请准备好您的回答
+            </p>
+            <button className="button button-lg" onClick={handleReady}>
+              我准备好了
+            </button>
+          </div>
         ) : (
-          <>
+          <div className="chat-input-area">
             <textarea
               className="textarea"
               value={inputText || (isRecording ? transcript : '')}
               onChange={(e) => setInputText(e.target.value)}
               placeholder={isRecording ? '正在录音，请说话...' : '请输入您的回答...'}
               disabled={isStreaming}
-              style={{ minHeight: '80px' }}
+              style={{ minHeight: '60px', resize: 'none' }}
             />
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+            <div className="chat-input-actions">
               <button 
-                className="button" 
+                className={`button ${isRecording ? 'button-danger' : 'button-secondary'}`}
                 onClick={isRecording ? handleVoiceStop : handleVoiceStart}
                 disabled={isStreaming}
-                style={{ background: isRecording ? '#ef4444' : '#f59e0b', flex: 1 }}
+                style={{ minWidth: '80px' }}
               >
-                {isRecording ? '停止录音' : '语音输入'}
+                {isRecording ? '停止' : '语音'}
               </button>
               <button 
-                className="button" 
+                className="button"
                 onClick={handleSend}
                 disabled={isStreaming || (!inputText.trim() && !getFullTranscript().trim())}
-                style={{ flex: 2 }}
               >
-                发送回答
+                发送
               </button>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>

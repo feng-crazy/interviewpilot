@@ -58,6 +58,14 @@ async def optimize_field(request: OptimizeRequest):
         )
 
     # 渲染提示词（render_template会自动加载模板）
+    template_name = f"optimization/{request.field_type}_optimization"
+    context_summary = build_context_summary(request.context, request.field_type)
+    task_instruction = (
+        "优化现有内容，使其更专业完整"
+        if request.field_content.strip()
+        else "根据上下文信息生成合理的默认内容"
+    )
+
     prompt = prompt_service.render_template(
         template_name,
         {

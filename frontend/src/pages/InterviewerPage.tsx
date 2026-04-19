@@ -90,88 +90,111 @@ export default function InterviewerPage() {
 
   return (
     <div className="chat-container">
-      <div style={{ padding: '1rem', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="chat-header">
         <div>
-          <h3>面试监控 - {config?.jd_text?.slice(0, 30)}...</h3>
+          <h3 className="chat-header-title">面试监控</h3>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginTop: 'var(--spacing-xs)' }}>
+            {config?.jd_text?.slice(0, 40)}...
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 'var(--spacing-md)', alignItems: 'center' }}>
           <span 
             aria-live="polite" 
             aria-atomic="true"
-            style={{ color: connected ? '#22c55e' : '#ef4444' }}
+            className={`status-badge ${connected ? 'status-badge-success' : 'status-badge-error'}`}
           >
             {connected ? '已连接' : '未连接'}
           </span>
           <span 
             aria-live="polite" 
             aria-atomic="true"
-            style={{ marginLeft: '1rem', color: aiManaged ? '#2563eb' : '#f59e0b' }}
+            className={`status-badge ${aiManaged ? 'status-badge-success' : 'status-badge-warning'}`}
           >
             {aiManaged ? 'AI托管' : '手动模式'}
           </span>
-          {config?.candidate_url && (
-            <span style={{ marginLeft: '1rem' }}>
-              候选人链接: {window.location.origin}{config.candidate_url}
-              <button
-                className="button"
-                onClick={handleCopyLink}
-                style={{ marginLeft: '0.5rem', fontSize: '0.875rem', padding: '0.25rem 0.5rem' }}
-              >
-                {copied ? '已复制' : '复制'}
-              </button>
-            </span>
-          )}
         </div>
-        
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+      </div>
+
+      {config?.candidate_url && (
+        <div style={{ padding: 'var(--spacing-md)', background: 'var(--color-primary-50)', borderBottom: '1px solid var(--color-gray-200)' }}>
+          <div className="copy-link-area">
+            <span className="copy-link-url">{window.location.origin}{config.candidate_url}</span>
+            <button
+              className="button button-ghost"
+              onClick={handleCopyLink}
+              style={{ padding: 'var(--spacing-xs) var(--spacing-sm)', fontSize: '0.75rem' }}
+            >
+              {copied ? '已复制' : '复制'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="chat-messages">
+        {messages.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-state-icon">💬</div>
+            <div className="empty-state-title">等待候选人加入</div>
+            <div className="empty-state-description">分享链接给候选人开始面试</div>
+          </div>
+        ) : (
+          messages.map((msg) => (
+            <div key={msg.id} className={`message ${msg.role}`}>
+              <div className="message-role">
+                {msg.role === 'ai' ? 'AI面试官' : 
+                 msg.role === 'interviewer' ? '面试官' : '面试者'}
+              </div>
+              <div className="message-content">{msg.content}</div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="chat-input">
+        <div style={{ display: 'flex', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-md)', flexWrap: 'wrap' }}>
           <button 
-            className="button" 
+            className={`button ${aiManaged ? 'button-secondary' : 'button'}`}
             onClick={handleToggleAI}
-            style={{ background: aiManaged ? '#f59e0b' : '#2563eb' }}
           >
-            {aiManaged ? '取消AI托管' : '继续AI托管'}
+            {aiManaged ? '切换手动模式' : '切换AI托管'}
           </button>
           
-          <button className="button" onClick={handleEndInterview} style={{ background: '#ef4444' }}>
+          <button className="button button-danger" onClick={handleEndInterview}>
             结束面试
           </button>
           
           {interviewEnded && (
-            <button className="button" onClick={handleGenerateReport} disabled={reportLoading}>
-              {reportLoading ? '生成中...' : '总结面试'}
+            <button className="button button-success" onClick={handleGenerateReport} disabled={reportLoading}>
+              {reportLoading ? (
+                <>
+                  <span className="loading-spinner"></span>
+                  生成中...
+                </>
+              ) : (
+                '生成报告'
+              )}
             </button>
           )}
         </div>
-      </div>
 
-      <div className="chat-messages">
-        {messages.map((msg) => (
-          <div key={msg.id} className={`message ${msg.role}`}>
-            <strong>
-              {msg.role === 'ai' ? 'AI面试官' : 
-               msg.role === 'interviewer' ? '面试官' : '面试者'}:
-            </strong>
-            <p>{msg.content}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="chat-input">
         <div style={{ opacity: aiManaged ? 0.5 : 1 }}>
-          <textarea
-            className="textarea"
-            value={manualInput}
-            onChange={(e) => setManualInput(e.target.value)}
-            placeholder={aiManaged ? 'AI托管模式下无法手动提问' : '输入手动提问...'}
-            disabled={aiManaged}
-            style={{ minHeight: '60px' }}
-          />
-          <button 
-            className="button" 
-            onClick={handleManualSend}
-            disabled={aiManaged || !manualInput.trim()}
-            style={{ marginTop: '0.5rem' }}
-          >
-            发送问题
-          </button>
+          <div className="chat-input-area">
+            <textarea
+              className="textarea"
+              value={manualInput}
+              onChange={(e) => setManualInput(e.target.value)}
+              placeholder={aiManaged ? 'AI托管模式下无法手动提问' : '输入手动提问...'}
+              disabled={aiManaged}
+              style={{ minHeight: '60px', resize: 'none' }}
+            />
+            <button 
+              className="button"
+              onClick={handleManualSend}
+              disabled={aiManaged || !manualInput.trim()}
+            >
+              发送
+            </button>
+          </div>
         </div>
       </div>
     </div>
