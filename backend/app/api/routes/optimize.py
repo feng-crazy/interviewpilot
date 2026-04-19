@@ -57,27 +57,7 @@ async def optimize_field(request: OptimizeRequest):
             status_code=400, detail=f"Invalid field_type: {request.field_type}"
         )
 
-    # 加载对应提示词模板
-    template_name = f"optimization/{request.field_type}_optimization"
-
-    try:
-        prompt_template = prompt_service.load_template(template_name)
-    except FileNotFoundError:
-        raise HTTPException(
-            status_code=500, detail=f"Prompt template not found: {template_name}"
-        )
-
-    # 构建上下文摘要
-    context_summary = build_context_summary(request.context, request.field_type)
-
-    # 动态任务指令
-    task_instruction = (
-        "优化现有内容，使其更专业完整"
-        if request.field_content.strip()
-        else "根据上下文信息生成合理的默认内容"
-    )
-
-    # 渲染提示词
+    # 渲染提示词（render_template会自动加载模板）
     prompt = prompt_service.render_template(
         template_name,
         {
