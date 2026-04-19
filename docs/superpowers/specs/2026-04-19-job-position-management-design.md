@@ -43,7 +43,7 @@ class JobPosition(Base):
     __tablename__ = "job_positions"
     
     id = Column(String, primary_key=True, default=generate_uuid)
-    name = Column(String(100), nullable=False)  # Human-readable position name
+    name = Column(String(100), nullable=False)  # Position name, e.g., "高级后端工程师-平台组" or "产品经理-AI方向"
     
     # Job configuration fields (extracted from Interview)
     jd_text = Column(Text, nullable=False)
@@ -222,7 +222,8 @@ def _extract_docx(content: bytes) -> str:
 
 **HomePage**:
 - Change "开始创建面试" button to "岗位库" (navigate to `/positions`)
-- Add "快速面试" button (navigate to `/positions/create` with auto-create-interview flag)
+- Add "新建岗位" button (navigate to `/positions/create`)
+- **Note**: User selected "岗位库模式" - positions are created first, then interviews are started from positions. No "快速面试" (skip position library) option needed.
 
 **InterviewerPage**:
 - Add resume summary display in header section
@@ -396,7 +397,7 @@ python-docx>=1.1.0
 - `frontend/src/services/jobPositionApi.ts`
 
 ### Frontend - Modified Files
-- `frontend/src/pages/HomePage.tsx` (navigation buttons)
+- `frontend/src/pages/HomePage.tsx` (navigation buttons: "岗位库" + "新建岗位")
 - `frontend/src/pages/InterviewerPage.tsx` (resume display)
 - `frontend/src/pages/DetailPage.tsx` (position info card)
 - `frontend/src/router.tsx` (add new routes)
