@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InterviewPilot Database Schema - New Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #e8e8e8;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00d4aa, #00a8e8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #8892b0;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .legend-box.new { background: #22c55e; box-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
+        .legend-box.removed { background: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+        .legend-box.unchanged { background: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+        .legend-box.pk { background: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+        .legend-box.fk { background: #a855f7; box-shadow: 0 0 10px rgba(168, 85, 247, 0.5); }
+
+        .diagrams-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1200px) {
+            .diagrams-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .diagram-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .diagram-section h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .diagram-section.before h2 {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .diagram-section.after h2 {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .erd-container {
+            position: relative;
+            min-height: 600px;
+        }
+
+        .table-box {
+            position: absolute;
+            background: rgba(30, 41, 59, 0.9);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: 2px solid;
+            min-width: 220px;
+        }
+
+        .table-box.new {
+            border-color: #22c55e;
+            box-shadow: 0 10px 40px rgba(34, 197, 94, 0.2);
+        }
+
+        .table-box.unchanged {
+            border-color: #3b82f6;
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.2);
+        }
+
+        .table-header {
+            padding: 12px 16px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .table-box.new .table-header {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+        }
+
+        .table-box.unchanged .table-header {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .table-fields {
+            padding: 12px 16px;
+        }
+
+        .field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .field:last-child {
+            border-bottom: none;
+        }
+
+        .field-key {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .field-key.pk {
+            background: #f59e0b;
+            color: #1a1a2e;
+        }
+
+        .field-key.fk {
+            background: #a855f7;
+            color: white;
+        }
+
+        .field-key.none {
+            background: transparent;
+        }
+
+        .field-name {
+            flex: 1;
+            color: #e2e8f0;
+        }
+
+        .field-type {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .field.removed {
+            text-decoration: line-through;
+            color: #ef4444;
+            opacity: 0.7;
+        }
+
+        .field.removed .field-type {
+            color: #ef4444;
+        }
+
+        .field.new {
+            color: #86efac;
+        }
+
+        .field.new .field-type {
+            color: #4ade80;
+        }
+
+        /* Table Positions - Before */
+        .before .table-interview { top: 20px; left: 50%; transform: translateX(-50%); }
+        .before .table-chatmessage { top: 320px; left: 20px; }
+        .before .table-report { top: 320px; right: 20px; }
+
+        /* Table Positions - After */
+        .after .table-jobposition { top: 20px; left: 50%; transform: translateX(-50%); }
+        .after .table-interview { top: 280px; left: 50%; transform: translateX(-50%); }
+        .after .table-chatmessage { top: 520px; left: 20px; }
+        .after .table-report { top: 520px; right: 20px; }
+
+        /* SVG Relationships */
+        .relationships-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .relationship-line {
+            stroke-width: 2;
+            fill: none;
+            marker-end: url(#arrowhead);
+        }
+
+        .relationship-line.new {
+            stroke: #22c55e;
+            stroke-dasharray: 5,5;
+            animation: dash 20s linear infinite;
+        }
+
+        .relationship-line.unchanged {
+            stroke: #3b82f6;
+        }
+
+        @keyframes dash {
+            to { stroke-dashoffset: -100; }
+        }
+
+        .relationship-label {
+            font-size: 0.75rem;
+            fill: #94a3b8;
+            text-anchor: middle;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 40px;
+        }
+
+        .summary-section h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            color: #e2e8f0;
+        }
+
+        .changes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .change-card {
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid;
+        }
+
+        .change-card.add {
+            border-left-color: #22c55e;
+        }
+
+        .change-card.remove {
+            border-left-color: #ef4444;
+        }
+
+        .change-card.modify {
+            border-left-color: #f59e0b;
+        }
+
+        .change-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .change-card.add h3 { color: #86efac; }
+        .change-card.remove h3 { color: #fca5a5; }
+        .change-card.modify h3 { color: #fcd34d; }
+
+        .change-card ul {
+            list-style: none;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+
+        .change-card li {
+            padding: 4px 0;
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .change-card li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            opacity: 0.6;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge.new {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        .badge.removed {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>InterviewPilot Database Schema</h1>
+        <p class="subtitle">New Design: JobPosition Entity Introduction</p>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box new"></div>
+                <span>New Table/Field</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box removed"></div>
+                <span>Removed Field</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box unchanged"></div>
+                <span>Unchanged</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box pk"></div>
+                <span>Primary Key</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box fk"></div>
+                <span>Foreign Key</span>
+            </div>
+        </div>
+
+        <div class="diagrams-wrapper">
+            <!-- BEFORE Diagram -->
+            <div class="diagram-section before">
+                <h2>📦 BEFORE (Current Schema)</h2>
+                <div class="erd-container">
+                    <svg class="relationships-svg">
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+                            </marker>
+                        </defs>
+                        <!-- Interview -> ChatMessage -->
+                        <line class="relationship-line unchanged" x1="50%" y1="280" x2="140" y2="320" />
+                        <text class="relationship-label" x="35%" y="300">1:N</text>
+                        <!-- Interview -> InterviewReport -->
+                        <line class="relationship-line unchanged" x1="50%" y1="280" x2="calc(100% - 140px)" y2="320" />
+                        <text class="relationship-label" x="65%" y="300">1:1</text>
+                    </svg>
+
+                    <!-- Interview Table -->
+                    <div class="table-box unchanged table-interview">
+                        <div class="table-header">Interview</div>
+                        <div class="table-fields">
+                            <div class="field">
+                                <span class="field-key pk">PK</span>
+                                <span class="field-name">id</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">jd_text</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">company_info</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">interviewer_info</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">process_requirement</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">constraint_info</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">max_questions</span>
+                                <span class="field-type">Integer</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">max_duration</span>
+                                <span class="field-type">Integer</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">interviewer_url</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">candidate_url</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">status</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">ai_managed</span>
+                                <span class="field-type">Boolean</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">report_status</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">started_at</span>
+                                <span class="field-type">DateTime</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">ended_at</span>
+                                <span class="field-type">DateTime</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">created_at</span>
+                                <span class="field-type">DateTime</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">updated_at</span>
+                                <span class="field-type">DateTime</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ChatMessage Table -->
+                    <div class="table-box unchanged table-chatmessage">
+                        <div class="table-header">ChatMessage</div>
+                        <div class="table-fields">
+                            <div class="field">
+                                <span class="field-key pk">PK</span>
+                                <span class="field-name">id</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key fk">FK</span>
+                                <span class="field-name">interview_id</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">sequence</span>
+                                <span class="field-type">Integer</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">role</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">content</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">source</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">input_type</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">duration_seconds</span>
+                                <span class="field-type">Integer</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">audio_duration</span>
+                                <span class="field-type">Float</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">created_at</span>
+                                <span class="field-type">DateTime</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- InterviewReport Table -->
+                    <div class="table-box unchanged table-report">
+                        <div class="table-header">InterviewReport</div>
+                        <div class="table-fields">
+                            <div class="field">
+                                <span class="field-key pk">PK</span>
+                                <span class="field-name">id</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key fk">FK</span>
+                                <span class="field-name">interview_id</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">chat_summary</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">ability_evaluation</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">match_analysis</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">pros_cons</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">hiring_recommendation</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">followup_questions</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">final_decision</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">overall_score</span>
+                                <span class="field-type">Float</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">created_at</span>
+                                <span class="field-type">DateTime</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AFTER Diagram -->
+            <div class="diagram-section after">
+                <h2>✨ AFTER (New Design)</h2>
+                <div class="erd-container">
+                    <svg class="relationships-svg">
+                        <defs>
+                            <marker id="arrowhead-new" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#22c55e" />
+                            </marker>
+                            <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+                            </marker>
+                        </defs>
+                        <!-- JobPosition -> Interview -->
+                        <line class="relationship-line new" x1="50%" y1="220" x2="50%" y2="280" 
+                              style="marker-end: url(#arrowhead-new);" />
+                        <text class="relationship-label" x="50%" y="255" style="fill: #22c55e;">1:N</text>
+                        <!-- Interview -> ChatMessage -->
+                        <line class="relationship-line unchanged" x1="50%" y1="480" x2="140" y2="520" 
+                              style="marker-end: url(#arrowhead-blue);" />
+                        <text class="relationship-label" x="35%" y="500">1:N</text>
+                        <!-- Interview -> InterviewReport -->
+                        <line class="relationship-line unchanged" x1="50%" y1="480" x2="calc(100% - 140px)" y2="520" 
+                              style="marker-end: url(#arrowhead-blue);" />
+                        <text class="relationship-label" x="65%" y="500">1:1</text>
+                    </svg>
+
+                    <!-- JobPosition Table (NEW) -->
+                    <div class="table-box new table-jobposition">
+                        <div class="table-header">JobPosition <span class="badge new">NEW</span></div>
+                        <div class="table-fields">
+                            <div class="field new">
+                                <span class="field-key pk">PK</span>
+                                <span class="field-name">id</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field new">
+                                <span class="field-key none"></span>
+                                <span class="field-name">jd_text</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field new">
+                                <span class="field-key none"></span>
+                                <span class="field-name">company_info</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field new">
+                                <span class="field-key none"></span>
+                                <span class="field-name">interviewer_info</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field new">
+                                <span class="field-key none"></span>
+                                <span class="field-name">process_requirement</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field new">
+                                <span class="field-key none"></span>
+                                <span class="field-name">constraint_info</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field new">
+                                <span class="field-key none"></span>
+                                <span class="field-name">created_at</span>
+                                <span class="field-type">DateTime</span>
+                            </div>
+                            <div class="field new">
+                                <span class="field-key none"></span>
+                                <span class="field-name">updated_at</span>
+                                <span class="field-type">DateTime</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interview Table (MODIFIED) -->
+                    <div class="table-box unchanged table-interview">
+                        <div class="table-header">Interview</div>
+                        <div class="table-fields">
+                            <div class="field">
+                                <span class="field-key pk">PK</span>
+                                <span class="field-name">id</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field new">
+                                <span class="field-key fk">FK</span>
+                                <span class="field-name">job_position_id</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field new">
+                                <span class="field-key none"></span>
+                                <span class="field-name">resume_text</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field removed">
+                                <span class="field-key none"></span>
+                                <span class="field-name">jd_text</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field removed">
+                                <span class="field-key none"></span>
+                                <span class="field-name">company_info</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field removed">
+                                <span class="field-key none"></span>
+                                <span class="field-name">interviewer_info</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field removed">
+                                <span class="field-key none"></span>
+                                <span class="field-name">process_requirement</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field removed">
+                                <span class="field-key none"></span>
+                                <span class="field-name">constraint_info</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">max_questions</span>
+                                <span class="field-type">Integer</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">max_duration</span>
+                                <span class="field-type">Integer</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">interviewer_url</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">candidate_url</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">status</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">ai_managed</span>
+                                <span class="field-type">Boolean</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">report_status</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">started_at</span>
+                                <span class="field-type">DateTime</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">ended_at</span>
+                                <span class="field-type">DateTime</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">created_at</span>
+                                <span class="field-type">DateTime</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">updated_at</span>
+                                <span class="field-type">DateTime</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ChatMessage Table -->
+                    <div class="table-box unchanged table-chatmessage">
+                        <div class="table-header">ChatMessage</div>
+                        <div class="table-fields">
+                            <div class="field">
+                                <span class="field-key pk">PK</span>
+                                <span class="field-name">id</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key fk">FK</span>
+                                <span class="field-name">interview_id</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">sequence</span>
+                                <span class="field-type">Integer</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">role</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">content</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">source</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">input_type</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">duration_seconds</span>
+                                <span class="field-type">Integer</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">audio_duration</span>
+                                <span class="field-type">Float</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">created_at</span>
+                                <span class="field-type">DateTime</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- InterviewReport Table -->
+                    <div class="table-box unchanged table-report">
+                        <div class="table-header">InterviewReport</div>
+                        <div class="table-fields">
+                            <div class="field">
+                                <span class="field-key pk">PK</span>
+                                <span class="field-name">id</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key fk">FK</span>
+                                <span class="field-name">interview_id</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">chat_summary</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">ability_evaluation</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">match_analysis</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">pros_cons</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">hiring_recommendation</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">followup_questions</span>
+                                <span class="field-type">Text</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">final_decision</span>
+                                <span class="field-type">String</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">overall_score</span>
+                                <span class="field-type">Float</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-key none"></span>
+                                <span class="field-name">created_at</span>
+                                <span class="field-type">DateTime</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="summary-section">
+            <h2>📋 Schema Changes Summary</h2>
+            <div class="changes-grid">
+                <div class="change-card add">
+                    <h3>➕ New Table: JobPosition</h3>
+                    <ul>
+                        <li>Extracted job-related fields from Interview</li>
+                        <li>Fields: jd_text, company_info, interviewer_info, process_requirement, constraint_info</li>
+                        <li>Enables reuse of job definitions across multiple interviews</li>
+                        <li>Supports job position management independently</li>
+                    </ul>
+                </div>
+                <div class="change-card add">
+                    <h3>➕ New Field: Interview.resume_text</h3>
+                    <ul>
+                        <li>Stores candidate's resume content</li>
+                        <li>Enables AI to reference resume during interview</li>
+                        <li>Supports personalized question generation</li>
+                    </ul>
+                </div>
+                <div class="change-card add">
+                    <h3>➕ New Foreign Key: Interview.job_position_id</h3>
+                    <ul>
+                        <li>References JobPosition.id</li>
+                        <li>Establishes 1:N relationship (one job, many interviews)</li>
+                        <li>Replaces embedded job fields</li>
+                    </ul>
+                </div>
+                <div class="change-card remove">
+                    <h3>➖ Removed Fields from Interview</h3>
+                    <ul>
+                        <li>jd_text → moved to JobPosition</li>
+                        <li>company_info → moved to JobPosition</li>
+                        <li>interviewer_info → moved to JobPosition</li>
+                        <li>process_requirement → moved to JobPosition</li>
+                        <li>constraint_info → moved to JobPosition</li>
+                    </ul>
+                </div>
+                <div class="change-card modify">
+                    <h3>🔄 Unchanged Tables</h3>
+                    <ul>
+                        <li>ChatMessage - no changes</li>
+                        <li>InterviewReport - no changes</li>
+                        <li>Existing Interview fields preserved</li>
+                    </ul>
+                </div>
+                <div class="change-card modify">
+                    <h3>🎯 Benefits</h3>
+                    <ul>
+                        <li>Normalized data model</li>
+                        <li>Job positions reusable across interviews</li>
+                        <li>Clearer separation of concerns</li>
+                        <li>Supports future job management features</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

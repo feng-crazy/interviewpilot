@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InterviewPilot UI Flow Comparison</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #e8e8e8;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #e94560, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #a0a0a0;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .legend-box.existing {
+            background: linear-gradient(135deg, #4a5568, #2d3748);
+            border: 2px solid #718096;
+        }
+
+        .legend-box.new {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            border: 2px solid #68d391;
+            box-shadow: 0 0 10px rgba(72, 187, 120, 0.4);
+        }
+
+        .legend-box.modified {
+            background: linear-gradient(135deg, #ecc94b, #d69e2e);
+            border: 2px solid #f6e05e;
+            box-shadow: 0 0 10px rgba(236, 201, 75, 0.4);
+        }
+
+        .comparison-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .flow-column {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .flow-column h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .flow-column.current h2 {
+            color: #a0aec0;
+        }
+
+        .flow-column.new h2 {
+            color: #68d391;
+        }
+
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+        }
+
+        .flow-node {
+            width: 220px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .flow-node:hover {
+            transform: translateY(-3px);
+        }
+
+        .flow-node.existing {
+            background: linear-gradient(135deg, #4a5568, #2d3748);
+            border: 2px solid #718096;
+        }
+
+        .flow-node.new {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            border: 2px solid #68d391;
+            box-shadow: 0 4px 20px rgba(72, 187, 120, 0.3);
+        }
+
+        .flow-node.modified {
+            background: linear-gradient(135deg, #ecc94b, #d69e2e);
+            border: 2px solid #f6e05e;
+            box-shadow: 0 4px 20px rgba(236, 201, 75, 0.3);
+        }
+
+        .flow-node.modified .node-title,
+        .flow-node.modified .node-desc {
+            color: #1a202c;
+        }
+
+        .node-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+
+        .node-desc {
+            font-size: 0.8rem;
+            color: #cbd5e0;
+            line-height: 1.4;
+        }
+
+        .arrow {
+            width: 2px;
+            height: 30px;
+            background: linear-gradient(to bottom, #718096, #a0aec0);
+            position: relative;
+            margin: 5px 0;
+        }
+
+        .arrow::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid #a0aec0;
+        }
+
+        .arrow.new-arrow {
+            background: linear-gradient(to bottom, #68d391, #48bb78);
+        }
+
+        .arrow.new-arrow::after {
+            border-top-color: #48bb78;
+        }
+
+        .arrow.modified-arrow {
+            background: linear-gradient(to bottom, #f6e05e, #ecc94b);
+        }
+
+        .arrow.modified-arrow::after {
+            border-top-color: #ecc94b;
+        }
+
+        .branch-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .branch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .branch-arrow {
+            width: 2px;
+            height: 20px;
+            background: linear-gradient(to bottom, #a0aec0, #718096);
+            margin-bottom: 5px;
+        }
+
+        .branch-label {
+            font-size: 0.75rem;
+            color: #a0aec0;
+            margin-bottom: 5px;
+            font-style: italic;
+        }
+
+        .split-connector {
+            width: 100px;
+            height: 2px;
+            background: #718096;
+            position: relative;
+            margin: 10px 0;
+        }
+
+        .split-connector::before,
+        .split-connector::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 15px;
+            background: #718096;
+            bottom: 0;
+        }
+
+        .split-connector::before {
+            left: 0;
+        }
+
+        .split-connector::after {
+            right: 0;
+        }
+
+        .merge-connector {
+            width: 100px;
+            height: 2px;
+            background: #718096;
+            position: relative;
+            margin: 10px 0;
+        }
+
+        .merge-connector::before,
+        .merge-connector::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 15px;
+            background: #718096;
+            top: 0;
+        }
+
+        .merge-connector::before {
+            left: 0;
+        }
+
+        .merge-connector::after {
+            right: 0;
+        }
+
+        .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge.new {
+            background: #48bb78;
+            color: white;
+        }
+
+        .badge.modified {
+            background: #ecc94b;
+            color: #1a202c;
+        }
+
+        .note {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(233, 69, 96, 0.1);
+            border-left: 4px solid #e94560;
+            border-radius: 8px;
+        }
+
+        .note h3 {
+            color: #e94560;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .note ul {
+            margin-left: 20px;
+            color: #cbd5e0;
+            line-height: 1.8;
+        }
+
+        .note li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 900px) {
+            .comparison-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>InterviewPilot UI Flow Comparison</h1>
+        <p class="subtitle">Current vs New Workflow Design</p>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box existing"></div>
+                <span>Existing (Unchanged)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box new"></div>
+                <span>New Addition</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box modified"></div>
+                <span>Modified</span>
+            </div>
+        </div>
+
+        <div class="comparison-wrapper">
+            <!-- Current Flow -->
+            <div class="flow-column current">
+                <h2>Current Workflow</h2>
+                <div class="flow-diagram">
+                    <div class="flow-node existing">
+                        <div class="node-title">HomePage</div>
+                        <div class="node-desc">Landing page with interview entry points</div>
+                    </div>
+                    <div class="arrow"></div>
+                    <div class="flow-node existing">
+                        <div class="node-title">ConfigPage</div>
+                        <div class="node-desc">Create interview with JD & resume upload</div>
+                    </div>
+                    <div class="arrow"></div>
+                    <div class="branch-container">
+                        <div class="branch">
+                            <div class="branch-arrow"></div>
+                            <div class="flow-node existing">
+                                <div class="node-title">InterviewerPage</div>
+                                <div class="node-desc">AI interviewer conducts interview</div>
+                            </div>
+                        </div>
+                        <div class="branch">
+                            <div class="branch-arrow"></div>
+                            <div class="flow-node existing">
+                                <div class="node-title">CandidatePage</div>
+                                <div class="node-desc">Candidate answers questions</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="merge-connector"></div>
+                    <div class="arrow"></div>
+                    <div class="flow-node existing">
+                        <div class="node-title">HistoryPage</div>
+                        <div class="node-desc">List of past interviews</div>
+                    </div>
+                    <div class="arrow"></div>
+                    <div class="flow-node existing">
+                        <div class="node-title">DetailPage</div>
+                        <div class="node-desc">Interview report & analysis</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Flow -->
+            <div class="flow-column new">
+                <h2>New Workflow (With Job Position)</h2>
+                <div class="flow-diagram">
+                    <div class="flow-node existing">
+                        <div class="node-title">HomePage</div>
+                        <div class="node-desc">Landing page with interview entry points</div>
+                    </div>
+                    <div class="arrow"></div>
+                    <div class="flow-node new">
+                        <span class="badge new">New</span>
+                        <div class="node-title">JobPositionListPage</div>
+                        <div class="node-desc">岗位库 - Browse & manage job positions</div>
+                    </div>
+                    <div class="arrow new-arrow"></div>
+                    <div class="flow-node new">
+                        <span class="badge new">New</span>
+                        <div class="node-title">JobPositionDetailPage</div>
+                        <div class="node-desc">View JD details & start interview</div>
+                    </div>
+                    <div class="arrow new-arrow"></div>
+                    <div class="flow-node modified">
+                        <span class="badge modified">Changed</span>
+                        <div class="node-title">Create Interview</div>
+                        <div class="node-desc">Upload resume modal (simplified)</div>
+                    </div>
+                    <div class="arrow modified-arrow"></div>
+                    <div class="branch-container">
+                        <div class="branch">
+                            <div class="branch-arrow modified-arrow"></div>
+                            <div class="flow-node existing">
+                                <div class="node-title">InterviewerPage</div>
+                                <div class="node-desc">AI interviewer conducts interview</div>
+                            </div>
+                        </div>
+                        <div class="branch">
+                            <div class="branch-arrow modified-arrow"></div>
+                            <div class="flow-node existing">
+                                <div class="node-title">CandidatePage</div>
+                                <div class="node-desc">Candidate answers questions</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="merge-connector"></div>
+                    <div class="arrow"></div>
+                    <div class="flow-node existing">
+                        <div class="node-title">HistoryPage</div>
+                        <div class="node-desc">List of past interviews</div>
+                    </div>
+                    <div class="arrow"></div>
+                    <div class="flow-node existing">
+                        <div class="node-title">DetailPage</div>
+                        <div class="node-desc">Interview report & analysis</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="note">
+            <h3>Key Changes Summary</h3>
+            <ul>
+                <li><strong>JobPositionListPage (NEW):</strong> Centralized job position library (岗位库) for managing all job descriptions</li>
+                <li><strong>JobPositionDetailPage (NEW):</strong> Dedicated page to view job details and initiate interviews</li>
+                <li><strong>Create Interview (MODIFIED):</strong> Simplified from full config page to modal dialog - only resume upload needed since JD is pre-selected</li>
+                <li><strong>ConfigPage (REMOVED):</strong> Replaced by the new job position flow + modal approach</li>
+                <li>Interview execution and reporting flow remains unchanged</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
