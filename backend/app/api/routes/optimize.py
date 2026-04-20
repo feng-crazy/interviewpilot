@@ -61,7 +61,7 @@ async def optimize_field(request: OptimizeRequest):
     template_name = f"optimization/{request.field_type}_optimization"
     context_summary = build_context_summary(request.context, request.field_type)
     task_instruction = (
-        "优化现有内容，使其更专业完整"
+        "优化现有内容，使其更适合做AI面试的输入信息"
         if request.field_content.strip()
         else "根据上下文信息生成合理的默认内容"
     )
