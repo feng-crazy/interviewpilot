@@ -8,7 +8,7 @@
 
 ## Summary
 
-InterviewPilot currently creates each interview as an independent session, requiring repeated input of job position information (JD, company info, interviewer info, process requirements). This design introduces a **JobPosition entity** that stores reusable job configuration, enabling users to:
+InterviewPilot currently creates each interview as an independent session, requiring repeated input of job position information (JD, company info, interviewer info, scheme requirements). This design introduces a **JobPosition entity** that stores reusable job configuration, enabling users to:
 
 1. Create and manage job position templates independently
 2. Start multiple interviews from the same position template
@@ -49,7 +49,7 @@ class JobPosition(Base):
     jd_text = Column(Text, nullable=False)
     company_info = Column(Text, nullable=False)
     interviewer_info = Column(Text, nullable=False)
-    process_requirement = Column(Text, nullable=False)
+    interview_scheme = Column(Text, nullable=False)
     
     # Default constraints
     default_max_questions = Column(Integer, default=10)
@@ -69,7 +69,7 @@ class JobPosition(Base):
 - `jd_text`
 - `company_info`
 - `interviewer_info`
-- `process_requirement`
+- `interview_scheme`
 - `constraint_info`
 
 **Fields added**:
@@ -286,7 +286,7 @@ def _extract_docx(content: bytes) -> str:
 | `{jd_text}` | JobPosition | `interview.job_position.jd_text` |
 | `{company_info}` | JobPosition | `interview.job_position.company_info` |
 | `{interviewer_info}` | JobPosition | `interview.job_position.interviewer_info` |
-| `{process_requirement}` | JobPosition | `interview.job_position.process_requirement` |
+| `{interview_scheme}` | JobPosition | `interview.job_position.interview_scheme` |
 | `{resume_text}` | Interview | `interview.resume_text` |
 
 **chat.py Rendering Update**:
@@ -295,7 +295,7 @@ variables = {
     "jd_text": interview.job_position.jd_text,
     "company_info": interview.job_position.company_info,
     "interviewer_info": interview.job_position.interviewer_info,
-    "process_requirement": interview.job_position.process_requirement,
+    "interview_scheme": interview.job_position.interview_scheme,
     "resume_text": interview.resume_text or "未提供简历信息",
     "max_questions": interview.max_questions,
     "current_question_count": current_question_count,

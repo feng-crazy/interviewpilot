@@ -5,7 +5,7 @@
 
 ## 概述
 
-为岗位配置页面的4个文本配置项（岗位JD、公司信息、面试偏好信息、流程要求）添加AI优化功能。每个配置项旁边显示一个魔法棒按钮（✨），点击后AI智能判断：如果输入框有内容则优化润色，如果为空则根据其他已填信息生成建议内容。
+为岗位配置页面的4个文本配置项（岗位JD、公司信息、面试偏好信息、面试方案）添加AI优化功能。每个配置项旁边显示一个魔法棒按钮（✨），点击后AI智能判断：如果输入框有内容则优化润色，如果为空则根据其他已填信息生成建议内容。
 
 ## 目标
 
@@ -23,7 +23,7 @@ backend/app/config/prompts/optimization/
 ├── jd_optimization.md          # JD优化提示词
 ├── company_optimization.md     # 公司信息优化提示词
 ├── interviewer_optimization.md # 面试偏好信息优化提示词
-└── process_optimization.md     # 流程要求优化提示词
+└── process_optimization.md     # 面试方案优化提示词
 ```
 
 **新增API路由：**
@@ -98,7 +98,7 @@ else:
 
 ## 注意
 - 如果JD已有内容，进行润色和补充而非完全重写
-- 如果JD为空，根据上下文中的公司信息和流程要求推测生成
+- 如果JD为空，根据上下文中的公司信息和面试方案推测生成
 - 避免过于技术化或过于泛泛的表述
 ```
 
@@ -157,9 +157,9 @@ else:
 #### 4. process_optimization.md
 
 ```markdown
-你是一个面试流程设计专家。请帮助用户优化面试流程要求内容。
+你是一个面试流程设计专家。请帮助用户优化面试面试方案内容。
 
-## 当前流程要求
+## 当前面试方案
 {field_content}
 
 ## 相关上下文
@@ -172,7 +172,7 @@ else:
 1. 明确考察重点和评估维度
 2. 规划提问顺序和时间分配
 3. 补充特殊要求（如开场、结束语、深挖方向）
-4. 仅输出优化后的流程要求，不要添加任何解释
+4. 仅输出优化后的面试方案，不要添加任何解释
 
 ## 注意
 - 如果内容已有，进行结构化和补充
@@ -186,9 +186,9 @@ else:
 
 ```python
 class OptimizeRequest(BaseModel):
-    field_type: str  # "jd" | "company" | "interviewer" | "process"
+    field_type: str  # "jd" | "company" | "interviewer" | "scheme"
     field_content: str  # 当前textarea内容（可能为空）
-    context: dict  # 其他已填字段 {jd_text, company_info, interviewer_info, process_requirement}
+    context: dict  # 其他已填字段 {jd_text, company_info, interviewer_info, interview_scheme}
 ```
 
 ### Response Model
@@ -239,7 +239,7 @@ const [optimizeLoading, setOptimizeLoading] = useState({
   jd: false,
   company: false,
   interviewer: false,
-  process: false
+  scheme: false
 });
 ```
 
@@ -258,7 +258,7 @@ async function handleOptimize(fieldType: string, currentContent: string) {
       jd: 'jd_text',
       company: 'company_info',
       interviewer: 'interviewer_info',
-      process: 'process_requirement'
+      scheme: 'interview_scheme'
     };
     
     setFormData({...formData, [fieldNameMap[fieldType]]: result.optimized_content});
@@ -272,10 +272,10 @@ async function handleOptimize(fieldType: string, currentContent: string) {
 
 function buildContext(fieldType: string, formData: FormData) {
   const contextFields = {
-    jd: ['company_info', 'interviewer_info', 'process_requirement'],
-    company: ['jd_text', 'interviewer_info', 'process_requirement'],
-    interviewer: ['jd_text', 'company_info', 'process_requirement'],
-    process: ['jd_text', 'company_info', 'interviewer_info']
+    jd: ['company_info', 'interviewer_info', 'interview_scheme'],
+    company: ['jd_text', 'interviewer_info', 'interview_scheme'],
+    interviewer: ['jd_text', 'company_info', 'interview_scheme'],
+    scheme: ['jd_text', 'company_info', 'interviewer_info']
   };
   
   const context = {};

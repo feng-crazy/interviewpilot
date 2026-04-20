@@ -393,7 +393,7 @@ class Interview(Base):
     jd_text = Column(Text, nullable=False)
     company_info = Column(Text, nullable=False)
     interviewer_info = Column(Text, nullable=False)
-    process_requirement = Column(Text, nullable=False)
+    interview_scheme = Column(Text, nullable=False)
     constraint_info = Column(Text, nullable=False)  # JSON format
     
     # Parsed constraint fields
@@ -521,7 +521,7 @@ class InterviewCreateRequest(BaseModel):
     jd_text: str = Field(..., description="岗位JD")
     company_info: str = Field(..., description="公司信息")
     interviewer_info: str = Field(..., description="面试偏好信息")
-    process_requirement: str = Field(..., description="流程要求")
+    interview_scheme: str = Field(..., description="面试方案")
     constraint_info: str = Field(..., description="约束信息JSON")
     
     def get_max_questions(self) -> int:
@@ -554,7 +554,7 @@ class InterviewConfig(BaseModel):
     jd_text: str
     company_info: str
     interviewer_info: str
-    process_requirement: str
+    interview_scheme: str
     max_questions: int
     max_duration: int
     status: str
@@ -763,7 +763,7 @@ async def create_interview(
         jd_text=request.jd_text,
         company_info=request.company_info,
         interviewer_info=request.interviewer_info,
-        process_requirement=request.process_requirement,
+        interview_scheme=request.interview_scheme,
         constraint_info=request.constraint_info,
         max_questions=request.get_max_questions(),
         max_duration=request.get_max_duration(),
@@ -799,7 +799,7 @@ async def get_interview_config(
         jd_text=interview.jd_text,
         company_info=interview.company_info,
         interviewer_info=interview.interviewer_info,
-        process_requirement=interview.process_requirement,
+        interview_scheme=interview.interview_scheme,
         max_questions=interview.max_questions,
         max_duration=interview.max_duration,
         status=interview.status,
@@ -887,7 +887,7 @@ async def get_interview_detail(
         jd_text=interview.jd_text,
         company_info=interview.company_info,
         interviewer_info=interview.interviewer_info,
-        process_requirement=interview.process_requirement,
+        interview_scheme=interview.interview_scheme,
         max_questions=interview.max_questions,
         max_duration=interview.max_duration,
         status=interview.status,
@@ -1212,7 +1212,7 @@ export interface InterviewCreateRequest {
   jd_text: string;
   company_info: string;
   interviewer_info: string;
-  process_requirement: string;
+  interview_scheme: string;
   constraint_info: string;
 }
 
@@ -1227,7 +1227,7 @@ export interface InterviewConfig {
   jd_text: string;
   company_info: string;
   interviewer_info: string;
-  process_requirement: string;
+  interview_scheme: string;
   max_questions: number;
   max_duration: number;
   status: string;
@@ -1357,7 +1357,7 @@ export const createInterview = async (data: {
   jd_text: string;
   company_info: string;
   interviewer_info: string;
-  process_requirement: string;
+  interview_scheme: string;
   constraint_info: string;
 }) => {
   const response = await api.post('/interview/create', data);
@@ -1560,8 +1560,8 @@ class LLMService:
 ### 面试偏好信息
 {interviewer_info}
 
-### 流程要求
-{process_requirement}
+### 面试方案
+{interview_scheme}
 
 ### 约束信息
 - 最大问题数: {max_questions}
@@ -1598,7 +1598,7 @@ END: [结束原因]
 
 ## 注意
 - 优先考察 JD 中的核心技术要求
-- 根据 {process_requirement} 中的考察重点调整提问策略
+- 根据 {interview_scheme} 中的考察重点调整提问策略
 - 保持问题风格与 {interviewer_info} 中描述的面试官风格一致
 ```
 
@@ -1615,8 +1615,8 @@ END: [结束原因]
 - 最大时长: {max_duration} 分钟
 - 已用时: {elapsed_duration} 分钟
 
-### 流程要求
-{process_requirement}
+### 面试方案
+{interview_scheme}
 
 ## 聊天历史摘要
 {chat_history_summary}
@@ -1952,7 +1952,7 @@ async def chat_stream(
         "jd_text": interview.jd_text,
         "company_info": interview.company_info,
         "interviewer_info": interview.interviewer_info,
-        "process_requirement": interview.process_requirement,
+        "interview_scheme": interview.interview_scheme,
         "max_questions": interview.max_questions,
         "current_question_count": ai_questions,
         "max_duration": interview.max_duration // 60,
@@ -2164,7 +2164,7 @@ export default function ConfigPage() {
     jd_text: '',
     company_info: '',
     interviewer_info: '',
-    process_requirement: '',
+    interview_scheme: '',
     max_questions: 10,
     max_duration: 30,
   });
@@ -2183,7 +2183,7 @@ export default function ConfigPage() {
         jd_text: formData.jd_text,
         company_info: formData.company_info,
         interviewer_info: formData.interviewer_info,
-        process_requirement: formData.process_requirement,
+        interview_scheme: formData.interview_scheme,
         constraint_info,
       });
 
@@ -2234,11 +2234,11 @@ export default function ConfigPage() {
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
-          <label>流程要求 *</label>
+          <label>面试方案 *</label>
           <textarea
             className="textarea"
-            value={formData.process_requirement}
-            onChange={(e) => setFormData({ ...formData, process_requirement: e.target.value })}
+            value={formData.interview_scheme}
+            onChange={(e) => setFormData({ ...formData, interview_scheme: e.target.value })}
             placeholder="面试轮次、考察重点..."
             required
           />
@@ -2821,7 +2821,7 @@ export default function DetailPage() {
           <p><strong>岗位 JD:</strong> {detail.config.jd_text}</p>
           <p><strong>公司信息:</strong> {detail.config.company_info}</p>
           <p><strong>面试官:</strong> {detail.config.interviewer_info}</p>
-          <p><strong>流程要求:</strong> {detail.config.process_requirement}</p>
+          <p><strong>面试方案:</strong> {detail.config.interview_scheme}</p>
           <p><strong>最大问题数:</strong> {detail.config.max_questions}</p>
           <p><strong>最大时长:</strong> {detail.config.max_duration / 60} 分钟</p>
         </div>

@@ -8,8 +8,8 @@
 - 最大时长: {max_duration} 分钟
 - 已用时: {elapsed_duration} 分钟
 
-### 流程要求
-{process_requirement}
+### 面试方案
+{interview_scheme}
 
 ## 聊天历史摘要
 {chat_history_summary}

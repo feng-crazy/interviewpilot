@@ -24,7 +24,7 @@ export interface InterviewConfig {
   jd_text: string;
   company_info: string;
   interviewer_info: string;
-  process_requirement: string;
+  interview_scheme: string;
 }
 
 export interface ChatMessage {
@@ -76,7 +76,7 @@ export interface JobPosition {
   jd_text: string;
   company_info: string;
   interviewer_info: string;
-  process_requirement: string;
+  interview_scheme: string;
   default_max_questions: number;
   default_max_duration: number;
   created_at: string;
@@ -88,7 +88,7 @@ export interface JobPositionCreateRequest {
   jd_text: string;
   company_info: string;
   interviewer_info: string;
-  process_requirement: string;
+  interview_scheme: string;
   default_max_questions?: number;
   default_max_duration?: number;
 }
@@ -98,7 +98,7 @@ export interface JobPositionUpdateRequest {
   jd_text?: string;
   company_info?: string;
   interviewer_info?: string;
-  process_requirement?: string;
+  interview_scheme?: string;
   default_max_questions?: number;
   default_max_duration?: number;
 }

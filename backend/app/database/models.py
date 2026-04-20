@@ -30,7 +30,7 @@ class JobPosition(Base):
     jd_text = Column(Text, nullable=False)
     company_info = Column(Text, nullable=False)
     interviewer_info = Column(Text, nullable=False)
-    process_requirement = Column(Text, nullable=False)
+    interview_scheme = Column(Text, nullable=False)
 
     # Default constraints
     default_max_questions = Column(Integer, default=10)

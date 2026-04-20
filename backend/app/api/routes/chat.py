@@ -54,7 +54,7 @@ async def chat_stream(interview_id: str, db: Session = Depends(get_db)):
             "jd_text": interview.job_position.jd_text,
             "company_info": interview.job_position.company_info,
             "interviewer_info": interview.job_position.interviewer_info,
-            "process_requirement": interview.job_position.process_requirement,
+            "interview_scheme": interview.job_position.interview_scheme,
             "resume_text": interview.resume_text or "未提供简历信息",
             "max_questions": interview.max_questions,
             "current_question_count": ai_questions,

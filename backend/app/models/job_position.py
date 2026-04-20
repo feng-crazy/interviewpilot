@@ -8,7 +8,10 @@ class JobPositionCreateRequest(BaseModel):
     jd_text: str = Field(..., description="Job description text")
     company_info: str = Field(..., description="Company information")
     interviewer_info: str = Field(..., description="Interviewer information")
-    process_requirement: str = Field(..., description="Process requirements")
+    interview_scheme: str = Field(
+        ...,
+        description="Interview scheme (rounds, focus areas, dimensions, time allocation, methods, etc.)",
+    )
     default_max_questions: Optional[int] = Field(
         default=10, description="Default max questions"
     )
@@ -23,7 +26,7 @@ class JobPositionResponse(BaseModel):
     jd_text: str
     company_info: str
     interviewer_info: str
-    process_requirement: str
+    interview_scheme: str
     default_max_questions: int
     default_max_duration: int
     created_at: datetime
@@ -37,8 +40,9 @@ class JobPositionUpdateRequest(BaseModel):
     interviewer_info: Optional[str] = Field(
         default=None, description="Interviewer information"
     )
-    process_requirement: Optional[str] = Field(
-        default=None, description="Process requirements"
+    interview_scheme: Optional[str] = Field(
+        default=None,
+        description="Interview scheme (rounds, focus areas, dimensions, time allocation, methods, etc.)",
     )
     default_max_questions: Optional[int] = Field(
         default=None, description="Default max questions"
@@ -54,7 +58,7 @@ class JobPositionDetail(BaseModel):
     jd_text: str
     company_info: str
     interviewer_info: str
-    process_requirement: str
+    interview_scheme: str
     default_max_questions: int
     default_max_duration: int
     created_at: datetime

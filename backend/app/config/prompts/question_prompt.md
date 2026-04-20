@@ -11,8 +11,8 @@
 ### 面试偏好信息
 {interviewer_info}
 
-### 流程要求
-{process_requirement}
+### 面试方案
+{interview_scheme}
 
 ### 约束信息
 - 最大问题数: {max_questions}
@@ -59,5 +59,5 @@ END: [结束原因]
 
 ## 注意
 - 优先考察 JD 中的核心技术要求
-- 根据 {process_requirement} 中的考察重点调整提问策略
+- 根据 {interview_scheme} 中的考察重点调整提问策略
 - 保持问题风格与 {interviewer_info} 中描述的面试官风格一致

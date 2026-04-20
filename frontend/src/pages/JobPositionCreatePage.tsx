@@ -11,7 +11,7 @@ export default function JobPositionCreatePage() {
     jd_text: '',
     company_info: '',
     interviewer_info: '',
-    process_requirement: '',
+    interview_scheme: '',
     default_max_questions: 10,
     default_max_duration: 1800,
   });
@@ -25,9 +25,9 @@ export default function JobPositionCreatePage() {
 
   function buildContext(fieldType: string, data: typeof formData) {
     const contextFields: Record<string, string[]> = {
-      jd: ['company_info', 'interviewer_info', 'process_requirement'],
-      company: ['jd_text', 'interviewer_info', 'process_requirement'],
-      interviewer: ['jd_text', 'company_info', 'process_requirement'],
+      jd: ['company_info', 'interviewer_info', 'interview_scheme'],
+      company: ['jd_text', 'interviewer_info', 'interview_scheme'],
+      interviewer: ['jd_text', 'company_info', 'interview_scheme'],
       process: ['jd_text', 'company_info', 'interviewer_info'],
     };
 
@@ -52,7 +52,7 @@ export default function JobPositionCreatePage() {
         jd: 'jd_text',
         company: 'company_info',
         interviewer: 'interviewer_info',
-        process: 'process_requirement',
+        process: 'interview_scheme',
       };
 
       setFormData({ ...formData, [fieldNameMap[fieldType]]: result.optimized_content });
@@ -172,11 +172,11 @@ export default function JobPositionCreatePage() {
 
           <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <label className="label label-required">流程要求</label>
+              <label className="label label-required">面试方案</label>
               <button
                 type="button"
                 className="ai-optimize-button"
-                onClick={() => handleOptimize('process', formData.process_requirement)}
+                onClick={() => handleOptimize('process', formData.interview_scheme)}
                 disabled={optimizeLoading.process}
                 title="AI优化"
               >
@@ -185,9 +185,9 @@ export default function JobPositionCreatePage() {
             </div>
             <textarea
               className="textarea"
-              value={formData.process_requirement}
-              onChange={(e) => setFormData({ ...formData, process_requirement: e.target.value })}
-              placeholder="面试轮次、考察重点、时间分配、特殊要求等..."
+              value={formData.interview_scheme}
+              onChange={(e) => setFormData({ ...formData, interview_scheme: e.target.value })}
+              placeholder="面试轮次、考察重点、考察维度、时间分配、面试方法/工具、其他要求等..."
               required
             />
           </div>

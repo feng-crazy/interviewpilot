@@ -157,7 +157,7 @@ mkdir -p /Users/hedengfeng/workspace/interviewpilot/verification/screenshots
 | 3 | **配置页 - 岗位 JD 输入** | 打开 /config，检查文本输入框 | 存在多行文本输入框，placeholder提示"岗位JD" |
 | 4 | **配置页 - 公司信息输入** | 检查配置页公司信息输入框 | 存在多行文本输入框 |
 | 5 | **配置页 - 面试偏好信息输入** | 检查配置页面试偏好信息输入框 | 存在多行文本输入框 |
-| 6 | **配置页 - 流程要求输入** | 检查配置页流程要求输入框 | 存在多行文本输入框 |
+| 6 | **配置页 - 面试方案输入** | 检查配置页面试方案输入框 | 存在多行文本输入框 |
 | 7 | **配置页 - 约束信息输入** | 检查最大问题数和最大时长数字输入框 | 存在两个数字输入框 |
 | 8 | **配置页 - 开始面试按钮** | 填写完配置后点击"开始面试" | 点击后跳转到面试官页面，生成面试ID |
 | 9 | **面试者页面 - 聊天框流式输出** | 点击"准备好了"，观察AI输出 | AI问题以流式方式输出，有光标动画 |
@@ -244,7 +244,7 @@ def verify_api():
         "jd_text": "高级Java开发工程师",
         "company_info": "阿里巴巴",
         "interviewer_info": "张三，技术总监",
-        "process_requirement": "初面，考察技术能力",
+        "interview_scheme": "初面，考察技术能力",
         "constraint_info": json.dumps({"max_questions": 5, "max_duration": 900})
     })
     assert response.status_code == 200

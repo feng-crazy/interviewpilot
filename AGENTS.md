@@ -82,7 +82,7 @@ interviewpilot/
 ## CODE MAP
 | Symbol | Type | Location | Role |
 |--------|------|----------|------|
-| `JobPosition` | ORM Model | `backend/app/database/models.py` | 岗位模板实体(JD/公司/偏好/流程配置) |
+| `JobPosition` | ORM Model | `backend/app/database/models.py` | 岗位模板实体(JD/公司/偏好/面试方案配置) |
 | `Interview` | ORM Model | `backend/app/database/models.py` | 面试会话实体(关联JobPosition) |
 | `ChatMessage` | ORM Model | `backend/app/database/models.py` | 聊天消息存储 |
 | `InterviewReport` | ORM Model | `backend/app/database/models.py` | 分析报告实体(6个维度) |
@@ -116,7 +116,7 @@ interviewpilot/
 
 ## UNIQUE STYLES
 - **岗位模板化流程**: 先创建岗位模板 → 从岗位开始面试 → 上传简历 → AI面试 → 生成报告
-- **AI配置优化**: 一键优化JD/公司信息/面试偏好/流程要求，基于LLM改进内容
+- **AI配置优化**: 一键优化JD/公司信息/面试偏好/面试方案，基于LLM改进内容
 - **提示词模板**: Markdown文件存储 (`backend/app/config/prompts/*.md`)，通过字符串替换渲染
 - **报告生成**: 6步LLM调用链（聊天总结→能力评估→匹配分析→优缺点→录用建议→追问）
 - **双视图面试**: 面试官端 (`InterviewerPage`) 和候选人端 (`CandidatePage`) 通过WebSocket同步

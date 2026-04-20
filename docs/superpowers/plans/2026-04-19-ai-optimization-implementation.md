@@ -16,7 +16,7 @@
 - `backend/app/config/prompts/optimization/jd_optimization.md` - JD优化提示词
 - `backend/app/config/prompts/optimization/company_optimization.md` - 公司信息优化提示词
 - `backend/app/config/prompts/optimization/interviewer_optimization.md` - 面试偏好信息优化提示词
-- `backend/app/config/prompts/optimization/process_optimization.md` - 流程要求优化提示词
+- `backend/app/config/prompts/optimization/process_optimization.md` - 面试方案优化提示词
 - `backend/app/api/routes/optimize.py` - 优化API路由
 
 **修改文件：**
@@ -61,7 +61,7 @@ mkdir -p backend/app/config/prompts/optimization
 
 ## 注意
 - 如果JD已有内容，进行润色和补充而非完全重写
-- 如果JD为空，根据上下文中的公司信息和流程要求推测生成
+- 如果JD为空，根据上下文中的公司信息和面试方案推测生成
 - 避免过于技术化或过于泛泛的表述
 ```
 
@@ -154,7 +154,7 @@ git commit -m "feat: add interviewer info optimization prompt template"
 
 ---
 
-### Task 4: 创建流程要求优化提示词模板
+### Task 4: 创建面试方案优化提示词模板
 
 **Files:**
 - Create: `backend/app/config/prompts/optimization/process_optimization.md`
@@ -162,9 +162,9 @@ git commit -m "feat: add interviewer info optimization prompt template"
 - [ ] **Step 1: 编写process_optimization.md提示词**
 
 ```markdown
-你是一个面试流程设计专家。请帮助用户优化面试流程要求内容。
+你是一个面试流程设计专家。请帮助用户优化面试面试方案内容。
 
-## 当前流程要求
+## 当前面试方案
 {field_content}
 
 ## 相关上下文
@@ -177,7 +177,7 @@ git commit -m "feat: add interviewer info optimization prompt template"
 1. 明确考察重点和评估维度
 2. 规划提问顺序和时间分配
 3. 补充特殊要求（如开场、结束语、深挖方向）
-4. 仅输出优化后的流程要求，不要添加任何解释
+4. 仅输出优化后的面试方案，不要添加任何解释
 
 ## 注意
 - 如果内容已有，进行结构化和补充
@@ -189,7 +189,7 @@ git commit -m "feat: add interviewer info optimization prompt template"
 
 ```bash
 git add backend/app/config/prompts/optimization/process_optimization.md
-git commit -m "feat: add process optimization prompt template"
+git commit -m "feat: add scheme optimization prompt template"
 ```
 
 ---
@@ -214,7 +214,7 @@ llm_service = LLMService()
 
 
 class OptimizeRequest(BaseModel):
-    field_type: str  # "jd" | "company" | "interviewer" | "process"
+    field_type: str  # "jd" | "company" | "interviewer" | "scheme"
     field_content: str  # 当前textarea内容（可能为空）
     context: Dict[str, str]  # 其他已填字段
 
@@ -229,7 +229,7 @@ def build_context_summary(context: Dict[str, str], field_type: str) -> str:
         "jd_text": "岗位JD",
         "company_info": "公司信息",
         "interviewer_info": "面试偏好信息",
-        "process_requirement": "流程要求",
+        "interview_scheme": "面试方案",
     }
     
     # 排除当前字段对应的context key
@@ -237,7 +237,7 @@ def build_context_summary(context: Dict[str, str], field_type: str) -> str:
         "jd": "jd_text",
         "company": "company_info",
         "interviewer": "interviewer_info",
-        "process": "process_requirement",
+        "scheme": "interview_scheme",
     }
     
     exclude_key = field_to_context_key.get(field_type)
@@ -255,7 +255,7 @@ def build_context_summary(context: Dict[str, str], field_type: str) -> str:
 async def optimize_field(request: OptimizeRequest):
     """优化配置项内容"""
     # 验证field_type
-    valid_types = ["jd", "company", "interviewer", "process"]
+    valid_types = ["jd", "company", "interviewer", "scheme"]
     if request.field_type not in valid_types:
         raise HTTPException(status_code=400, detail=f"Invalid field_type: {request.field_type}")
     
@@ -458,7 +458,7 @@ const [optimizeLoading, setOptimizeLoading] = useState({
   jd: false,
   company: false,
   interviewer: false,
-  process: false,
+  scheme: false,
 });
 ```
 
@@ -468,10 +468,10 @@ const [optimizeLoading, setOptimizeLoading] = useState({
 ```typescript
 function buildContext(fieldType: string, formData: typeof formData) {
   const contextFields: Record<string, string[]> = {
-    jd: ['company_info', 'interviewer_info', 'process_requirement'],
-    company: ['jd_text', 'interviewer_info', 'process_requirement'],
-    interviewer: ['jd_text', 'company_info', 'process_requirement'],
-    process: ['jd_text', 'company_info', 'interviewer_info'],
+    jd: ['company_info', 'interviewer_info', 'interview_scheme'],
+    company: ['jd_text', 'interviewer_info', 'interview_scheme'],
+    interviewer: ['jd_text', 'company_info', 'interview_scheme'],
+    scheme: ['jd_text', 'company_info', 'interviewer_info'],
   };
 
   const context: Record<string, string> = {};
@@ -500,7 +500,7 @@ async function handleOptimize(fieldType: string, currentContent: string) {
       jd: 'jd_text',
       company: 'company_info',
       interviewer: 'interviewer_info',
-      process: 'process_requirement',
+      scheme: 'interview_scheme',
     };
 
     setFormData({ ...formData, [fieldNameMap[fieldType]]: result.optimized_content });
@@ -590,26 +590,26 @@ async function handleOptimize(fieldType: string, currentContent: string) {
 </div>
 ```
 
-- [ ] **Step 8: 修改流程要求表单项添加AI优化按钮**
+- [ ] **Step 8: 修改面试方案表单项添加AI优化按钮**
 
 ```tsx
 <div className="form-group">
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-    <label className="label label-required">流程要求</label>
+    <label className="label label-required">面试方案</label>
     <button
       type="button"
       className="ai-optimize-button"
-      onClick={() => handleOptimize('process', formData.process_requirement)}
-      disabled={optimizeLoading.process}
+      onClick={() => handleOptimize('scheme', formData.interview_scheme)}
+      disabled={optimizeLoading.scheme}
       title="AI优化"
     >
-      {optimizeLoading.process ? <span className="loading-spinner"></span> : '✨'}
+      {optimizeLoading.scheme ? <span className="loading-spinner"></span> : '✨'}
     </button>
   </div>
   <textarea
     className="textarea"
-    value={formData.process_requirement}
-    onChange={(e) => setFormData({ ...formData, process_requirement: e.target.value })}
+    value={formData.interview_scheme}
+    onChange={(e) => setFormData({ ...formData, interview_scheme: e.target.value })}
     placeholder="面试轮次、考察重点、时间分配、特殊要求等..."
     required
   />

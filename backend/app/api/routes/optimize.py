@@ -25,7 +25,7 @@ def build_context_summary(context: Dict[str, str], field_type: str) -> str:
         "jd_text": "岗位JD",
         "company_info": "公司信息",
         "interviewer_info": "面试偏好信息",
-        "process_requirement": "流程要求",
+        "interview_scheme": "面试方案",
     }
 
     # 排除当前字段对应的context key
@@ -33,7 +33,7 @@ def build_context_summary(context: Dict[str, str], field_type: str) -> str:
         "jd": "jd_text",
         "company": "company_info",
         "interviewer": "interviewer_info",
-        "process": "process_requirement",
+        "process": "interview_scheme",
     }
 
     exclude_key = field_to_context_key.get(field_type)

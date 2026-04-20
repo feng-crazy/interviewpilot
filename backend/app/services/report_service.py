@@ -34,7 +34,7 @@ class ReportService:
         jd_text = job_position.jd_text
         company_info = job_position.company_info
         interviewer_info = job_position.interviewer_info
-        process_requirement = job_position.process_requirement
+        interview_scheme = job_position.interview_scheme
 
         chat_summary = await self._run_template(
             "chat_summary",
@@ -59,7 +59,7 @@ class ReportService:
                 "jd_text": jd_text,
                 "company_info": company_info,
                 "interviewer_info": interviewer_info,
-                "process_requirement": process_requirement,
+                "interview_scheme": interview_scheme,
                 "ability_evaluation": ability_evaluation,
             },
         )
@@ -78,7 +78,7 @@ class ReportService:
             {
                 "company_info": company_info,
                 "interviewer_info": interviewer_info,
-                "process_requirement": process_requirement,
+                "interview_scheme": interview_scheme,
                 "match_analysis": match_analysis,
                 "pros_cons": pros_cons,
             },
@@ -89,7 +89,7 @@ class ReportService:
             {
                 "jd_text": jd_text,
                 "interviewer_info": interviewer_info,
-                "process_requirement": process_requirement,
+                "interview_scheme": interview_scheme,
                 "hiring_recommendation": hiring_recommendation,
             },
         )

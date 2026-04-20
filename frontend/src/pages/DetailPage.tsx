@@ -142,8 +142,8 @@ export default function DetailPage() {
               <p style={{ fontSize: '0.875rem' }}>{detail.config.interviewer_info}</p>
             </div>
             <div style={{ padding: 'var(--spacing-md)', background: 'var(--color-gray-50)', borderRadius: 'var(--radius-md)' }}>
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginBottom: 'var(--spacing-xs)' }}>流程要求</p>
-              <p style={{ fontSize: '0.875rem' }}>{detail.config.process_requirement}</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginBottom: 'var(--spacing-xs)' }}>面试方案</p>
+              <p style={{ fontSize: '0.875rem' }}>{detail.config.interview_scheme}</p>
             </div>
             <div className="form-row">
               <div style={{ padding: 'var(--spacing-md)', background: 'var(--color-gray-50)', borderRadius: 'var(--radius-md)' }}>

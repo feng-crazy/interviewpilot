@@ -28,7 +28,7 @@ export default function JobPositionDetailPage() {
         jd_text: data.jd_text,
         company_info: data.company_info,
         interviewer_info: data.interviewer_info,
-        process_requirement: data.process_requirement,
+        interview_scheme: data.interview_scheme,
         default_max_questions: data.default_max_questions,
         default_max_duration: data.default_max_duration,
       });
@@ -144,7 +144,7 @@ export default function JobPositionDetailPage() {
                     jd_text: position.jd_text,
                     company_info: position.company_info,
                     interviewer_info: position.interviewer_info,
-                    process_requirement: position.process_requirement,
+                    interview_scheme: position.interview_scheme,
                     default_max_questions: position.default_max_questions,
                     default_max_duration: position.default_max_duration,
                   });
@@ -230,19 +230,19 @@ export default function JobPositionDetailPage() {
           )}
         </div>
 
-        {/* 流程要求 */}
+        {/* 面试方案 */}
         <div style={{ padding: 'var(--spacing-md)', background: 'var(--color-gray-50)', borderRadius: 'var(--radius-md)' }}>
-          <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginBottom: 'var(--spacing-xs)' }}>流程要求</p>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginBottom: 'var(--spacing-xs)' }}>面试方案</p>
           {isEditing ? (
             <textarea
               className="form-textarea"
-              value={formData.process_requirement || ''}
-              onChange={(e) => handleInputChange('process_requirement', e.target.value)}
+              value={formData.interview_scheme || ''}
+              onChange={(e) => handleInputChange('interview_scheme', e.target.value)}
               rows={4}
               style={{ fontSize: '0.875rem', width: '100%', resize: 'vertical' }}
             />
           ) : (
-            <p style={{ fontSize: '0.875rem', whiteSpace: 'pre-wrap' }}>{position.process_requirement}</p>
+            <p style={{ fontSize: '0.875rem', whiteSpace: 'pre-wrap' }}>{position.interview_scheme}</p>
           )}
         </div>
 
