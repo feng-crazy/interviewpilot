@@ -105,7 +105,12 @@ interviewpilot/
 - **API风格**: RESTful + WebSocket混合，无API版本号 (`/api/interview`而非`/api/v1/`)
 - **LLM集成**: 使用OpenAI兼容接口调用DashScope，模型默认`qwen-plus`
 - **实时通信**: SSE用于AI流式响应，WebSocket用于双端聊天同步和语音识别
-- **岗位模板化**: 面试配置存储在JobPosition模板，Interview通过外键引用
+- **岗位模板化**: 面试配置存储在JobPosition模板，Interview通过外键引用JobPosition
+- **Git Worktree开发**: 使用git worktree进行多agent并行开发，避免工作区干扰
+  - **Worktree目录**: `.worktrees/` (已在.gitignore中)
+  - **基础分支**: `hotfix` (紧急修复) 和 `feature` (功能开发)
+  - **开发新功能**: 使用 `git worktree add .worktrees/<branch-name> -b <branch-name>` 创建隔离工作区
+  - **工作流**: 创建worktree → 安装依赖 → 开发测试 → 合回main → 清理worktree
 
 ## ANTI-PATTERNS (THIS PROJECT)
 - **DO NOT** 在`Settings`类中使用`BaseSettings` - 当前手动实现`__init__`读取环境变量
