@@ -271,3 +271,6 @@ vite.config.ts.timestamp-*
 
 *.db
 interviewpilot.db
+
+# Backend logs
+backend/logs/

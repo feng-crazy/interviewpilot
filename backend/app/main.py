@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from .config import get_settings
+from .config.logging import init_logging
 from .database import init_db
 from .api.routes.interview import router as interview_router
 from .api.routes.chat import router as chat_router
@@ -19,6 +20,7 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    init_logging()  # 初始化日志配置
     init_db()
     yield
 

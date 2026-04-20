@@ -5,8 +5,10 @@ import uuid
 
 from ...database import get_db, Interview, ChatMessage
 from ...services.websocket_manager import ws_manager
+from ...config.logging import get_logger
 
 router = APIRouter()
+logger = get_logger("websocket_route")
 
 
 @router.websocket("/ws/interview/{interview_id}")
@@ -18,6 +20,14 @@ async def interview_websocket(
     try:
         while True:
             data = await websocket.receive_json()
+            message_type = data.get("type", "unknown")
+            message_size = len(str(data))
+
+            logger.info(
+                "websocket_message_received",
+                message_type=message_type,
+                message_size_bytes=message_size,
+            )
 
             if data.get("type") == "chat_message":
                 interview = (
@@ -56,6 +66,14 @@ async def interview_websocket(
                 db.commit()
                 db.refresh(message)
 
+                logger.info(
+                    "chat_message_saved",
+                    message_id=message.id,
+                    sequence=message.sequence,
+                    role=message.role,
+                    source=source,
+                )
+
                 await ws_manager.broadcast(
                     interview_id,
                     {
@@ -74,6 +92,8 @@ async def interview_websocket(
 
             elif data.get("type") == "control":
                 action = data.get("action")
+
+                logger.info("control_command_received", action=action)
 
                 if action == "toggle_ai_managed":
                     interview = (
@@ -109,3 +129,13 @@ async def interview_websocket(
 
     except WebSocketDisconnect:
         ws_manager.disconnect(interview_id, websocket)
+        logger.info("websocket_client_disconnect", interview_id=interview_id)
+
+    except Exception as e:
+        ws_manager.disconnect(interview_id, websocket)
+        logger.error(
+            "websocket_error",
+            error_type=type(e).__name__,
+            error_message=str(e),
+            exc_info=True,
+        )

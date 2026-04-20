@@ -2,9 +2,14 @@ from io import BytesIO
 import pdfplumber
 from docx import Document
 
+from ..config.logging import get_logger
+
 
 class ResumeParserService:
     """Service for extracting text from PDF and DOCX resume files."""
+
+    def __init__(self):
+        self.logger = get_logger("resume_parser")
 
     async def extract_text(self, content: bytes, filename: str) -> str:
         """
@@ -42,6 +47,7 @@ class ResumeParserService:
         Raises:
             ValueError: If PDF extraction fails
         """
+        self.logger.info("resume_parse_start", file_type="pdf")
         text_parts = []
         try:
             with pdfplumber.open(BytesIO(content)) as pdf:
@@ -56,7 +62,9 @@ class ResumeParserService:
         except Exception as e:
             raise ValueError(f"PDF extraction failed: {str(e)}")
 
-        return "\n\n".join(text_parts)
+        text = "\n\n".join(text_parts)
+        self.logger.info("resume_parse_end", file_type="pdf", text_length=len(text))
+        return text
 
     def _extract_docx(self, content: bytes) -> str:
         """
@@ -71,6 +79,7 @@ class ResumeParserService:
         Raises:
             ValueError: If DOCX extraction fails
         """
+        self.logger.info("resume_parse_start", file_type="docx")
         text_parts = []
         try:
             doc = Document(BytesIO(content))
@@ -87,4 +96,6 @@ class ResumeParserService:
         except Exception as e:
             raise ValueError(f"DOCX extraction failed: {str(e)}")
 
-        return "\n\n".join(text_parts)
+        text = "\n\n".join(text_parts)
+        self.logger.info("resume_parse_end", file_type="docx", text_length=len(text))
+        return text

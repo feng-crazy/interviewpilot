@@ -34,6 +34,11 @@ class Settings:
     LLM_TEMPERATURE: float = 0.7
     LLM_TIMEOUT: int = 30
 
+    # Logging Settings
+    LOG_LEVEL: str = "INFO"
+    LOG_DIR: str = "logs"
+    LOG_MAX_DAYS: int = 7
+
     # Interview Settings
     DEFAULT_MAX_QUESTIONS: int = 10
     DEFAULT_MAX_DURATION: int = 1800  # seconds
@@ -50,6 +55,10 @@ class Settings:
         # Paraformer speech recognition config
         self.PARAFORMER_WS_URL = os.getenv("PARAFORMER_WS_URL", self.PARAFORMER_WS_URL)
         self.PARAFORMER_MODEL = os.getenv("PARAFORMER_MODEL", self.PARAFORMER_MODEL)
+        # Logging config
+        self.LOG_LEVEL = os.getenv("LOG_LEVEL", self.LOG_LEVEL)
+        self.LOG_DIR = os.getenv("LOG_DIR", self.LOG_DIR)
+        self.LOG_MAX_DAYS = int(os.getenv("LOG_MAX_DAYS", str(self.LOG_MAX_DAYS)))
 
 
 @lru_cache()

@@ -5,6 +5,7 @@ import json
 import websockets
 from typing import AsyncGenerator
 from ..config import get_settings
+from ..config.logging import get_logger
 
 settings = get_settings()
 
@@ -19,9 +20,11 @@ class SpeechService:
         self.ws_url = settings.PARAFORMER_WS_URL
         self.api_key = settings.DASHSCOPE_API_KEY
         self.model = settings.PARAFORMER_MODEL
+        self.logger = get_logger("speech_service")
 
     async def connect_to_paraformer(self) -> websockets.WebSocketClientProtocol:
         """Connect to Paraformer WebSocket API."""
+        self.logger.info("speech_ws_connect_start", model=self.model)
         headers = {"Authorization": f"Bearer {self.api_key}"}
         url = f"{self.ws_url}?model={self.model}"
         ws = await websockets.connect(url, extra_headers=headers)
@@ -36,6 +39,7 @@ class SpeechService:
             },
         }
         await ws.send(json.dumps(init_message))
+        self.logger.info("speech_ws_connect_end", model=self.model)
         return ws
 
     async def transcribe_stream(
@@ -67,6 +71,12 @@ class SpeechService:
                             sentence_id = payload.get("sentence_id", 0)
 
                             if text:
+                                self.logger.info(
+                                    "speech_transcript_result",
+                                    text=text,
+                                    is_final=is_final,
+                                    sentence_id=sentence_id,
+                                )
                                 yield {
                                     "text": text,
                                     "is_final": is_final,
@@ -81,6 +91,9 @@ class SpeechService:
             async def send_audio():
                 try:
                     for chunk in audio_chunks:
+                        self.logger.debug(
+                            "speech_audio_received", chunk_size=len(chunk)
+                        )
                         await ws.send(chunk)
                 except Exception:
                     pass
