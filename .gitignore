@@ -275,3 +275,5 @@ interviewpilot.db
 backend/data/
 # Backend logs
 backend/logs/
+
+.DS_Store
