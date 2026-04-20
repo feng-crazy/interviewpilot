@@ -1,7 +1,7 @@
 .PHONY: install backend frontend dev stop clean test
 
 install:
-	cd backend && pip install -r requirements.txt
+	cd backend && uv sync --extra dev
 	cd frontend && npm install
 
 backend:
