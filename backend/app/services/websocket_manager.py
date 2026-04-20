@@ -52,11 +52,22 @@ class WebSocketManager:
 
     async def broadcast(self, interview_id: str, message: dict):
         if interview_id in self.active_connections:
+            failed_connections = []
             for connection in self.active_connections[interview_id]:
                 try:
                     await connection.send_json(message)
-                except:
-                    pass
+                except Exception as e:
+                    self.logger.warning(
+                        "websocket_broadcast_failed",
+                        interview_id=interview_id,
+                        error_type=type(e).__name__,
+                        error_message=str(e),
+                    )
+                    failed_connections.append(connection)
+
+            for conn in failed_connections:
+                if interview_id in self.active_connections:
+                    self.active_connections[interview_id].discard(conn)
 
     async def send_to_one(self, interview_id: str, websocket: WebSocket, message: dict):
         try:
