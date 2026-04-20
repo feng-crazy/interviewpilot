@@ -14,7 +14,7 @@ const parseResume = async (file: File): Promise<ResumeParseResponse> => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch('/api/parse-resume', {
+  const response = await fetch('/api/resume/parse', {
     method: 'POST',
     body: formData,
   });
