@@ -55,8 +55,47 @@ class ResumeParserService:
             raise ValueError(f"PDF extraction failed: {str(e)}")
 
         text = "\n\n".join(text_parts)
+        text = self._remove_watermark_suffix(text)
         self.logger.info("resume_parse_end", file_type="pdf", text_length=len(text))
         return text
+
+    def _remove_watermark_suffix(self, text: str) -> str:
+        """
+        Remove watermark/anti-copy suffix from extracted text.
+
+        PDF watermarks often appear at the end of extracted text as patterns like:
+        - ~~~ followed by encoded strings
+        - Strings containing ~, _, and hex-like characters mixed together
+        - Examples: "~~A3rhhNQT_liGOWXy_U_WoyYNlF7m934dH1e31603ed6b764fdb"
+
+        This method detects and removes such watermark suffixes.
+        """
+        if not text:
+            return text
+
+        # Pattern 1: Remove trailing watermark strings (~~ + encoded pattern)
+        # Matches: ~~, followed by any combination of ~, _, letters, digits, up to end
+        watermark_pattern = re.compile(r"[~_]{2,}[a-zA-Z0-9~_]{10,}$")
+
+        cleaned = watermark_pattern.sub("", text)
+
+        # Pattern 2: Remove standalone watermark blocks at the very end
+        # These are typically hex-like strings with ~ and _ interspersed
+        # Example: "bdf467b6de30613e1Hd439m7FlNYyoW_U_yXWOGil_TQNhhr3A"
+        standalone_watermark = re.compile(r"[a-f0-9A-Z~_]{20,}$")
+
+        cleaned = standalone_watermark.sub("", cleaned)
+
+        # Pattern 3: Remove repeated watermark patterns
+        # Sometimes watermarks repeat multiple times at the end
+        repeated_pattern = re.compile(r"(?:[a-zA-Z0-9~_]{15,}){2,}$")
+
+        cleaned = repeated_pattern.sub("", cleaned)
+
+        # Trim trailing whitespace and newlines
+        cleaned = cleaned.rstrip()
+
+        return cleaned
 
     def _is_text_corrupted(self, text: str) -> bool:
         """
