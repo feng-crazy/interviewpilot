@@ -5,7 +5,7 @@
 
 ## 概述
 
-为配置页面的4个文本配置项（岗位JD、公司信息、面试官信息、流程要求）添加AI优化功能。每个配置项旁边显示一个魔法棒按钮（✨），点击后AI智能判断：如果输入框有内容则优化润色，如果为空则根据其他已填信息生成建议内容。
+为岗位配置页面的4个文本配置项（岗位JD、公司信息、面试官信息、流程要求）添加AI优化功能。每个配置项旁边显示一个魔法棒按钮（✨），点击后AI智能判断：如果输入框有内容则优化润色，如果为空则根据其他已填信息生成建议内容。
 
 ## 目标
 
@@ -34,7 +34,7 @@ backend/app/config/prompts/optimization/
 ### 前端
 
 **修改文件：**
-- `frontend/src/pages/ConfigPage.tsx` - 添加AI优化按钮和状态管理
+- `frontend/src/pages/JobPositionCreatePage.tsx` - 添加AI优化按钮和状态管理
 - `frontend/src/services/api.ts` - 新增`optimizeContent()`API调用函数
 
 **新增样式类：**

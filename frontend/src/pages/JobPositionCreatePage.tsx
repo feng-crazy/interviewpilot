@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createJobPosition } from '../services/api';
+import { createJobPosition, optimizeContent } from '../services/api';
 import type { JobPositionCreateRequest } from '../types/interview';
 
 export default function JobPositionCreatePage() {
@@ -15,6 +15,53 @@ export default function JobPositionCreatePage() {
     default_max_questions: 10,
     default_max_duration: 1800,
   });
+
+  const [optimizeLoading, setOptimizeLoading] = useState({
+    jd: false,
+    company: false,
+    interviewer: false,
+    process: false,
+  });
+
+  function buildContext(fieldType: string, data: typeof formData) {
+    const contextFields: Record<string, string[]> = {
+      jd: ['company_info', 'interviewer_info', 'process_requirement'],
+      company: ['jd_text', 'interviewer_info', 'process_requirement'],
+      interviewer: ['jd_text', 'company_info', 'process_requirement'],
+      process: ['jd_text', 'company_info', 'interviewer_info'],
+    };
+
+    const context: Record<string, string> = {};
+    for (const field of contextFields[fieldType]) {
+      const value = data[field as keyof typeof data];
+      if (typeof value === 'string' && value.trim()) {
+        context[field] = value;
+      }
+    }
+    return context;
+  }
+
+  async function handleOptimize(fieldType: string, currentContent: string) {
+    setOptimizeLoading({ ...optimizeLoading, [fieldType]: true });
+
+    try {
+      const context = buildContext(fieldType, formData);
+      const result = await optimizeContent(fieldType, currentContent, context);
+
+      const fieldNameMap: Record<string, string> = {
+        jd: 'jd_text',
+        company: 'company_info',
+        interviewer: 'interviewer_info',
+        process: 'process_requirement',
+      };
+
+      setFormData({ ...formData, [fieldNameMap[fieldType]]: result.optimized_content });
+    } catch (error) {
+      console.error('优化失败:', error);
+    } finally {
+      setOptimizeLoading({ ...optimizeLoading, [fieldType]: false });
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +101,18 @@ export default function JobPositionCreatePage() {
           </div>
 
           <div className="form-group">
-            <label className="label label-required">岗位 JD</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <label className="label label-required">岗位 JD</label>
+              <button
+                type="button"
+                className="ai-optimize-button"
+                onClick={() => handleOptimize('jd', formData.jd_text)}
+                disabled={optimizeLoading.jd}
+                title="AI优化"
+              >
+                {optimizeLoading.jd ? <span className="loading-spinner"></span> : '✨'}
+              </button>
+            </div>
             <textarea
               className="textarea"
               value={formData.jd_text}
@@ -65,7 +123,18 @@ export default function JobPositionCreatePage() {
           </div>
 
           <div className="form-group">
-            <label className="label label-required">公司信息</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <label className="label label-required">公司信息</label>
+              <button
+                type="button"
+                className="ai-optimize-button"
+                onClick={() => handleOptimize('company', formData.company_info)}
+                disabled={optimizeLoading.company}
+                title="AI优化"
+              >
+                {optimizeLoading.company ? <span className="loading-spinner"></span> : '✨'}
+              </button>
+            </div>
             <textarea
               className="textarea"
               value={formData.company_info}
@@ -80,7 +149,18 @@ export default function JobPositionCreatePage() {
           <h3 style={{ marginBottom: 'var(--spacing-md)', fontSize: '1rem' }}>面试设置</h3>
 
           <div className="form-group">
-            <label className="label label-required">面试官信息</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <label className="label label-required">面试官信息</label>
+              <button
+                type="button"
+                className="ai-optimize-button"
+                onClick={() => handleOptimize('interviewer', formData.interviewer_info)}
+                disabled={optimizeLoading.interviewer}
+                title="AI优化"
+              >
+                {optimizeLoading.interviewer ? <span className="loading-spinner"></span> : '✨'}
+              </button>
+            </div>
             <textarea
               className="textarea"
               value={formData.interviewer_info}
@@ -91,7 +171,18 @@ export default function JobPositionCreatePage() {
           </div>
 
           <div className="form-group">
-            <label className="label label-required">流程要求</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <label className="label label-required">流程要求</label>
+              <button
+                type="button"
+                className="ai-optimize-button"
+                onClick={() => handleOptimize('process', formData.process_requirement)}
+                disabled={optimizeLoading.process}
+                title="AI优化"
+              >
+                {optimizeLoading.process ? <span className="loading-spinner"></span> : '✨'}
+              </button>
+            </div>
             <textarea
               className="textarea"
               value={formData.process_requirement}

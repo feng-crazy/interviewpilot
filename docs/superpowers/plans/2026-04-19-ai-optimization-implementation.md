@@ -22,7 +22,7 @@
 **修改文件：**
 - `backend/app/main.py` - 注册优化路由
 - `frontend/src/services/api.ts` - 添加optimizeContent()函数
-- `frontend/src/pages/ConfigPage.tsx` - 添加AI优化按钮和状态
+- `frontend/src/pages/JobPositionCreatePage.tsx` - 添加AI优化按钮和状态
 - `frontend/src/index.css` - 添加.ai-optimize-button样式
 
 ---
@@ -436,10 +436,10 @@ git commit -m "feat: add AI optimize button styles"
 
 ---
 
-### Task 9: 修改ConfigPage添加AI优化功能
+### Task 9: 修改JobPositionCreatePage添加AI优化功能
 
 **Files:**
-- Modify: `frontend/src/pages/ConfigPage.tsx`
+- Modify: `frontend/src/pages/JobPositionCreatePage.tsx`
 
 - [ ] **Step 1: 导入optimizeContent**
 
@@ -514,7 +514,6 @@ async function handleOptimize(fieldType: string, currentContent: string) {
 
 - [ ] **Step 5: 修改岗位JD表单项添加AI优化按钮**
 
-将第54-63行的岗位JD表单项修改为：
 ```tsx
 <div className="form-group">
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
@@ -541,7 +540,6 @@ async function handleOptimize(fieldType: string, currentContent: string) {
 
 - [ ] **Step 6: 修改公司信息表单项添加AI优化按钮**
 
-将第65-74行的公司信息表单项修改为：
 ```tsx
 <div className="form-group">
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
@@ -568,7 +566,6 @@ async function handleOptimize(fieldType: string, currentContent: string) {
 
 - [ ] **Step 7: 修改面试官信息表单项添加AI优化按钮**
 
-将第80-89行的面试官信息表单项修改为：
 ```tsx
 <div className="form-group">
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
@@ -595,7 +592,6 @@ async function handleOptimize(fieldType: string, currentContent: string) {
 
 - [ ] **Step 8: 修改流程要求表单项添加AI优化按钮**
 
-将第91-100行的流程要求表单项修改为：
 ```tsx
 <div className="form-group">
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
@@ -623,7 +619,7 @@ async function handleOptimize(fieldType: string, currentContent: string) {
 - [ ] **Step 9: 提交**
 
 ```bash
-git add frontend/src/pages/ConfigPage.tsx
+git add frontend/src/pages/JobPositionCreatePage.tsx
 git commit -m "feat: add AI optimize buttons to config page textareas"
 ```
 
