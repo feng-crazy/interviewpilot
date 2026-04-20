@@ -15,22 +15,52 @@ export default function InterviewerPage() {
   const [reportLoading, setReportLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [resumeExpanded, setResumeExpanded] = useState(false);
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
+  const [streamingContent, setStreamingContent] = useState('');
 
-  const { connected, lastMessage, sendMessage, sendControl } = useWebSocket(id || '');
+  const { 
+    connected, 
+    lastMessage, 
+    sendMessage, 
+    sendControl,
+    isReconnecting,
+    showReconnectPrompt,
+    reconnectAttempt,
+    maxReconnectAttempts,
+    initializeMessageIds,
+  } = useWebSocket(id || '');
 
   useEffect(() => {
     if (id) {
-      getInterviewConfig(id).then((data) => {
+      getInterviewConfig(id).then((data: InterviewConfig) => {
         setConfig(data);
         setAiManaged(data.ai_managed);
+        if (data.messages && data.messages.length > 0) {
+          setMessages(data.messages);
+          initializeMessageIds(data.messages);
+        }
       });
     }
-  }, [id]);
+  }, [id, initializeMessageIds]);
 
   useEffect(() => {
     if (lastMessage?.type === 'chat_sync' && lastMessage.message) {
       const msg = lastMessage.message;
       setMessages((prev) => [...prev, msg]);
+    }
+    if (lastMessage?.type === 'streaming_sync') {
+      if (lastMessage.is_start) {
+        setStreamingMessageId(lastMessage.message_id || null);
+        setStreamingContent('');
+      } else if (lastMessage.message_id === streamingMessageId && lastMessage.content) {
+        setStreamingContent(lastMessage.content);
+      }
+    }
+    if (lastMessage?.type === 'streaming_end' && lastMessage.final_message) {
+      const finalMsg = lastMessage.final_message;
+      setMessages((prev) => [...prev, finalMsg]);
+      setStreamingMessageId(null);
+      setStreamingContent('');
     }
     if (lastMessage?.type === 'control_update' && lastMessage.ai_managed !== undefined) {
       setAiManaged(lastMessage.ai_managed);
@@ -38,7 +68,7 @@ export default function InterviewerPage() {
     if (lastMessage?.type === 'interview_ended') {
       setInterviewEnded(true);
     }
-  }, [lastMessage]);
+  }, [lastMessage, streamingMessageId]);
 
   const handleToggleAI = async () => {
     const newState = !aiManaged;
@@ -117,6 +147,17 @@ export default function InterviewerPage() {
         </div>
       </div>
 
+      {isReconnecting && (
+        <div className="status-banner reconnecting" role="status" aria-live="polite">
+          正在重新连接... ({reconnectAttempt}/{maxReconnectAttempts})
+        </div>
+      )}
+      {showReconnectPrompt && (
+        <div className="status-banner disconnected" role="alert" aria-live="assertive">
+          连接中断，请刷新页面
+        </div>
+      )}
+
       {config?.candidate_url && (
         <div style={{ padding: 'var(--spacing-md)', background: 'var(--color-primary-50)', borderBottom: '1px solid var(--color-gray-200)' }}>
           <div className="copy-link-area">
@@ -177,6 +218,14 @@ export default function InterviewerPage() {
               <div className="message-content">{msg.content}</div>
             </div>
           ))
+        )}
+        {streamingMessageId && (
+          <div className="message ai streaming">
+            <div className="message-role">AI面试官</div>
+            <div className="message-content">
+              {streamingContent}<span className="streaming-cursor" />
+            </div>
+          </div>
         )}
       </div>
 
