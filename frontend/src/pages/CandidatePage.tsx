@@ -56,9 +56,8 @@ export default function CandidatePage() {
     if (lastMessage?.type === 'chat_sync' && lastMessage.message) {
       addMessage(lastMessage.message);
     }
-    if (lastMessage?.type === 'streaming_end' && lastMessage.final_message) {
-      addMessage(lastMessage.final_message);
-    }
+    // 移除 streaming_end 处理 - SSE done 已经添加 AI 消息
+    // streaming_end 仅用于同步给 InterviewerPage
     if (lastMessage?.type === 'interview_ended') {
       setInterviewEnded(true);
     }
