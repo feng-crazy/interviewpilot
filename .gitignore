@@ -277,3 +277,4 @@ backend/data/
 backend/logs/
 
 .DS_Store
+.bare/
