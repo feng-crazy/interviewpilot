@@ -28,12 +28,28 @@
   --color-gray-800: #1f2937;
   --color-gray-900: #111827;
 
+  --color-success-50: #ecfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-200: #a7f3d0;
   --color-success-500: #10b981;
   --color-success-600: #059669;
+  --color-success-700: #047857;
+
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
   --color-warning-500: #f59e0b;
   --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+
+  --color-error-50: #fef2f2;
+  --color-error-100: #fee2e2;
+  --color-error-200: #fecaca;
   --color-error-500: #ef4444;
   --color-error-600: #dc2626;
+  --color-error-700: #b91c1c;
+
+  --color-primary-25: #f0f7ff;
 
   --surface: #ffffff;
   --page-bg: #f9fafb;
@@ -745,4 +761,56 @@ h3 { font-size: 1.125rem; line-height: 1.4; }
 .ai-optimize-button .loading-spinner {
   width: 1rem;
   height: 1rem;
+}
+
+/* 状态提示Banner */
+.status-banner {
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: center;
+  font-size: 0.875rem;
+  border-radius: var(--radius-sm);
+  margin: var(--spacing-sm) var(--spacing-md);
+}
+
+.status-banner.reconnecting {
+  background: var(--color-warning-50);
+  color: var(--color-warning-700);
+  border: 1px solid var(--color-warning-200);
+}
+
+.status-banner.disconnected {
+  background: var(--color-error-50);
+  color: var(--color-error-700);
+  border: 1px solid var(--color-error-200);
+}
+
+.status-banner.error {
+  background: var(--color-error-50);
+  color: var(--color-error-700);
+  border: 1px solid var(--color-error-200);
+}
+
+/* 流式光标动画 - blink版本 */
+.streaming-cursor-blink {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--color-primary-500);
+  margin-left: 2px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* 流式消息特殊样式 */
+.message.streaming {
+  opacity: 0.9;
+  background: var(--color-primary-25);
 }
