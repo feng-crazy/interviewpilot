@@ -75,3 +75,7 @@ class InterviewListItem(BaseModel):
 class InterviewListResponse(BaseModel):
     items: List[InterviewListItem]
     total: int
+
+
+class DeleteResponse(BaseModel):
+    message: str
