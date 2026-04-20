@@ -1,5 +1,6 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from datetime import datetime
 import uuid
 
@@ -40,13 +41,13 @@ async def interview_websocket(
                     )
                     continue
 
-                last_message = (
-                    db.query(ChatMessage)
+                sequence = (
+                    db.query(func.max(ChatMessage.sequence))
                     .filter(ChatMessage.interview_id == interview_id)
-                    .order_by(ChatMessage.sequence.desc())
-                    .first()
+                    .scalar()
+                    or 0
                 )
-                sequence = (last_message.sequence + 1) if last_message else 1
+                sequence += 1
 
                 source = (
                     "manual" if data.get("role") == "interviewer" else "candidate_input"
