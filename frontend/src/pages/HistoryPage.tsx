@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getInterviewHistory } from '../services/api';
+import { getInterviewHistory, deleteInterview } from '../services/api';
 import type { InterviewListItem } from '../types/interview';
 
 export default function HistoryPage() {
@@ -35,6 +35,20 @@ export default function HistoryPage() {
     
     setFilteredInterviews(filtered);
   }, [statusFilter, dateFilter, interviews]);
+
+  const handleDelete = async (interviewId: string) => {
+    if (!window.confirm('确定要删除这条面试记录吗？此操作不可撤销。')) {
+      return;
+    }
+    try {
+      await deleteInterview(interviewId);
+      const data = await getInterviewHistory();
+      setInterviews(data.items);
+      setFilteredInterviews(data.items);
+    } catch (error) {
+      alert('删除失败，请稍后重试');
+    }
+  };
 
   if (loading) {
     return (
@@ -118,6 +132,15 @@ export default function HistoryPage() {
                 <Link to={`/detail/${item.id}`} className="button button-ghost">
                   查看详情
                 </Link>
+                {item.status === 'ended' && (
+                  <button 
+                    className="button button-ghost" 
+                    style={{ color: 'var(--color-error-600)' }}
+                    onClick={() => handleDelete(item.id)}
+                  >
+                    删除
+                  </button>
+                )}
               </div>
             </div>
           ))}

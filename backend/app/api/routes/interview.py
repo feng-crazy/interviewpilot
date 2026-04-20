@@ -18,6 +18,7 @@ from ...models.interview import (
     InterviewListItem,
     ChatMessageDTO,
     ReportDTO,
+    DeleteResponse,
 )
 
 router = APIRouter()
@@ -189,3 +190,20 @@ async def get_interview_detail(interview_id: str, db: Session = Depends(get_db))
         messages=message_dtos,
         report=report_dto,
     )
+
+
+@router.delete("/{interview_id}", response_model=DeleteResponse)
+async def delete_interview(interview_id: str, db: Session = Depends(get_db)):
+    interview = db.query(Interview).filter(Interview.id == interview_id).first()
+    if not interview:
+        raise HTTPException(status_code=404, detail="Interview not found")
+
+    if interview.status != "ended":
+        raise HTTPException(
+            status_code=400, detail="Only ended interviews can be deleted"
+        )
+
+    db.delete(interview)
+    db.commit()
+
+    return DeleteResponse(message="Interview deleted successfully")

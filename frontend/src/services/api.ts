@@ -96,3 +96,8 @@ export const parseResume = async (file: File) => {
   });
   return response.data;
 };
+
+export const deleteInterview = async (id: string) => {
+  const response = await api.delete(`/interview/${id}`);
+  return response.data;
+};
