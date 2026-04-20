@@ -189,3 +189,18 @@ async def get_interview_detail(interview_id: str, db: Session = Depends(get_db))
         messages=message_dtos,
         report=report_dto,
     )
+
+
+@router.delete("/{interview_id}")
+async def delete_interview(interview_id: str, db: Session = Depends(get_db)):
+    interview = db.query(Interview).filter(Interview.id == interview_id).first()
+    if not interview:
+        raise HTTPException(status_code=404, detail="面试不存在")
+
+    if interview.status != "ended":
+        raise HTTPException(status_code=400, detail="只能删除已结束的面试")
+
+    db.delete(interview)
+    db.commit()
+
+    return {"message": "面试记录已删除"}
