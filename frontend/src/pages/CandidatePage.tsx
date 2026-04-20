@@ -25,7 +25,7 @@ export default function CandidatePage() {
   }, [id]);
 
   useEffect(() => {
-    if (lastMessage?.type === 'chat_sync') {
+    if (lastMessage?.type === 'chat_sync' && lastMessage.message) {
       addMessage(lastMessage.message);
     }
     if (lastMessage?.type === 'interview_ended') {

@@ -28,8 +28,9 @@ export default function InterviewerPage() {
   }, [id]);
 
   useEffect(() => {
-    if (lastMessage?.type === 'chat_sync') {
-      setMessages((prev) => [...prev, lastMessage.message]);
+    if (lastMessage?.type === 'chat_sync' && lastMessage.message) {
+      const msg = lastMessage.message;
+      setMessages((prev) => [...prev, msg]);
     }
     if (lastMessage?.type === 'control_update' && lastMessage.ai_managed !== undefined) {
       setAiManaged(lastMessage.ai_managed);
