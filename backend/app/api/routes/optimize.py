@@ -24,7 +24,7 @@ def build_context_summary(context: Dict[str, str], field_type: str) -> str:
     field_labels = {
         "jd_text": "岗位JD",
         "company_info": "公司信息",
-        "interviewer_info": "面试官信息",
+        "interviewer_info": "面试偏好信息",
         "process_requirement": "流程要求",
     }
 

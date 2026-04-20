@@ -15,7 +15,7 @@
 **创建文件：**
 - `backend/app/config/prompts/optimization/jd_optimization.md` - JD优化提示词
 - `backend/app/config/prompts/optimization/company_optimization.md` - 公司信息优化提示词
-- `backend/app/config/prompts/optimization/interviewer_optimization.md` - 面试官信息优化提示词
+- `backend/app/config/prompts/optimization/interviewer_optimization.md` - 面试偏好信息优化提示词
 - `backend/app/config/prompts/optimization/process_optimization.md` - 流程要求优化提示词
 - `backend/app/api/routes/optimize.py` - 优化API路由
 
@@ -114,7 +114,7 @@ git commit -m "feat: add company info optimization prompt template"
 
 ---
 
-### Task 3: 创建面试官信息优化提示词模板
+### Task 3: 创建面试偏好信息优化提示词模板
 
 **Files:**
 - Create: `backend/app/config/prompts/optimization/interviewer_optimization.md`
@@ -122,9 +122,9 @@ git commit -m "feat: add company info optimization prompt template"
 - [ ] **Step 1: 编写interviewer_optimization.md提示词**
 
 ```markdown
-你是一个面试风格专家。请帮助用户优化面试官信息内容。
+你是一个面试风格专家。请帮助用户优化面试偏好信息内容。
 
-## 当前面试官信息
+## 当前面试偏好信息
 {field_content}
 
 ## 相关上下文
@@ -137,7 +137,7 @@ git commit -m "feat: add company info optimization prompt template"
 1. 明确面试官职位、背景和专业领域
 2. 描述提问风格（如追问深度、亲和程度、技术倾向）
 3. 补充性格特点或面试偏好
-4. 仅输出优化后的面试官信息，不要添加任何解释
+4. 仅输出优化后的面试偏好信息，不要添加任何解释
 
 ## 注意
 - 如果内容已有，进行补充和精炼
@@ -228,7 +228,7 @@ def build_context_summary(context: Dict[str, str], field_type: str) -> str:
     field_labels = {
         "jd_text": "岗位JD",
         "company_info": "公司信息",
-        "interviewer_info": "面试官信息",
+        "interviewer_info": "面试偏好信息",
         "process_requirement": "流程要求",
     }
     
@@ -564,12 +564,12 @@ async function handleOptimize(fieldType: string, currentContent: string) {
 </div>
 ```
 
-- [ ] **Step 7: 修改面试官信息表单项添加AI优化按钮**
+- [ ] **Step 7: 修改面试偏好信息表单项添加AI优化按钮**
 
 ```tsx
 <div className="form-group">
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-    <label className="label label-required">面试官信息</label>
+    <label className="label label-required">面试偏好信息</label>
     <button
       type="button"
       className="ai-optimize-button"
@@ -584,7 +584,7 @@ async function handleOptimize(fieldType: string, currentContent: string) {
     className="textarea"
     value={formData.interviewer_info}
     onChange={(e) => setFormData({ ...formData, interviewer_info: e.target.value })}
-    placeholder="面试官姓名、职位、性格特点、提问风格偏好等..."
+    placeholder="面试官职位、性格特点、提问风格、个人偏好等..."
     required
   />
 </div>

@@ -214,9 +214,9 @@ export default function JobPositionDetailPage() {
           )}
         </div>
 
-        {/* 面试官信息 */}
+        {/* 面试偏好信息 */}
         <div style={{ padding: 'var(--spacing-md)', background: 'var(--color-gray-50)', borderRadius: 'var(--radius-md)' }}>
-          <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginBottom: 'var(--spacing-xs)' }}>面试官信息</p>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginBottom: 'var(--spacing-xs)' }}>面试偏好信息</p>
           {isEditing ? (
             <textarea
               className="form-textarea"

@@ -150,7 +150,7 @@ export default function JobPositionCreatePage() {
 
           <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <label className="label label-required">面试官信息</label>
+              <label className="label label-required">面试偏好信息</label>
               <button
                 type="button"
                 className="ai-optimize-button"
@@ -165,7 +165,7 @@ export default function JobPositionCreatePage() {
               className="textarea"
               value={formData.interviewer_info}
               onChange={(e) => setFormData({ ...formData, interviewer_info: e.target.value })}
-              placeholder="面试官姓名、职位、性格特点、提问风格偏好等..."
+              placeholder="面试官职位、性格特点、提问风格、个人偏好等..."
               required
             />
           </div>

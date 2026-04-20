@@ -520,7 +520,7 @@ class InterviewCreateRequest(BaseModel):
     """Request to create a new interview."""
     jd_text: str = Field(..., description="岗位JD")
     company_info: str = Field(..., description="公司信息")
-    interviewer_info: str = Field(..., description="面试官信息")
+    interviewer_info: str = Field(..., description="面试偏好信息")
     process_requirement: str = Field(..., description="流程要求")
     constraint_info: str = Field(..., description="约束信息JSON")
     
@@ -1557,7 +1557,7 @@ class LLMService:
 ### 公司信息
 {company_info}
 
-### 面试官信息
+### 面试偏好信息
 {interviewer_info}
 
 ### 流程要求
@@ -2223,12 +2223,12 @@ export default function ConfigPage() {
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
-          <label>面试官信息 *</label>
+          <label>面试偏好信息 *</label>
           <textarea
             className="textarea"
             value={formData.interviewer_info}
             onChange={(e) => setFormData({ ...formData, interviewer_info: e.target.value })}
-            placeholder="面试官姓名、职位..."
+            placeholder="面试官职位、性格特点、提问风格、个人偏好等..."
             required
           />
         </div>

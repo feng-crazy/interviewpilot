@@ -8,7 +8,7 @@
 ### 公司信息
 {company_info}
 
-### 面试官信息
+### 面试偏好信息
 {interviewer_info}
 
 ### 流程要求
