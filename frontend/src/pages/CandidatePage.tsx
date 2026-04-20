@@ -52,6 +52,10 @@ export default function CandidatePage() {
         id: Date.now().toString(),
         role: 'candidate',
         content: textToSend,
+        sequence: messages.length + 1,
+        source: 'manual',
+        input_type: voiceMode ? 'voice' : 'text',
+        created_at: new Date().toISOString(),
       });
       setInputText('');
       stopRecording();
