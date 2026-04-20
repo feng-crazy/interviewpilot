@@ -25,6 +25,7 @@ export interface InterviewConfig {
   company_info: string;
   interviewer_info: string;
   interview_scheme: string;
+  messages?: ChatMessage[];
 }
 
 export interface ChatMessage {
@@ -35,6 +36,27 @@ export interface ChatMessage {
   source: 'ai_generated' | 'manual' | 'system';
   input_type?: 'text' | 'voice';
   created_at: string;
+}
+
+export interface WebSocketMessage {
+  type: 'chat_sync' | 'streaming_sync' | 'streaming_end' | 'control_update' | 'interview_ended' | 'error';
+  
+  // chat_sync - 完整消息同步 (候选人/面试官消息)
+  message?: ChatMessage;
+  
+  // streaming_sync - AI流式token
+  message_id?: string;
+  content?: string;
+  is_start?: boolean;
+  
+  // streaming_end - 流式结束
+  final_message?: ChatMessage;
+  
+  // control_update - 控制状态更新
+  ai_managed?: boolean;
+  
+  // error - 错误消息
+  error_message?: string;
 }
 
 export interface InterviewReport {
