@@ -13,20 +13,51 @@ export default function CandidatePage() {
   const [inputText, setInputText] = useState('');
   const [interviewEnded, setInterviewEnded] = useState(false);
   const [voiceMode, setVoiceMode] = useState(false);
+  const [historicalMessagesLoaded, setHistoricalMessagesLoaded] = useState(false);
 
-  const { messages, streamingContent, isStreaming, startStream, addMessage } = useChat(id || '');
-  const { connected, lastMessage, sendMessage } = useWebSocket(id || '');
+  const { 
+    messages, 
+    streamingContent, 
+    isStreaming, 
+    sseError,
+    startStream, 
+    addMessage,
+    clearError,
+  } = useChat(id || '');
+
+  const { 
+    connected, 
+    lastMessage, 
+    sendMessage, 
+    isReconnecting,
+    showReconnectPrompt,
+    reconnectAttempt,
+    maxReconnectAttempts,
+    initializeMessageIds,
+  } = useWebSocket(id || '');
+
   const { isRecording, transcript, finalTranscript, startRecording, stopRecording, getFullTranscript } = useSpeechRecognition();
 
   useEffect(() => {
     if (id) {
-      getInterviewConfig(id).then(setConfig);
+      getInterviewConfig(id).then((data: InterviewConfig) => {
+        setConfig(data);
+        // 加载历史消息
+        if (data.messages && data.messages.length > 0) {
+          data.messages.forEach((msg) => addMessage(msg));
+          initializeMessageIds(data.messages);
+        }
+        setHistoricalMessagesLoaded(true);
+      });
     }
-  }, [id]);
+  }, [id, addMessage, initializeMessageIds]);
 
   useEffect(() => {
     if (lastMessage?.type === 'chat_sync' && lastMessage.message) {
       addMessage(lastMessage.message);
+    }
+    if (lastMessage?.type === 'streaming_end' && lastMessage.final_message) {
+      addMessage(lastMessage.final_message);
     }
     if (lastMessage?.type === 'interview_ended') {
       setInterviewEnded(true);
@@ -48,19 +79,14 @@ export default function CandidatePage() {
     const textToSend = inputText.trim() || getFullTranscript().trim();
     if (textToSend) {
       sendMessage('candidate', textToSend, voiceMode ? 'voice' : 'text');
-      addMessage({
-        id: Date.now().toString(),
-        role: 'candidate',
-        content: textToSend,
-        sequence: messages.length + 1,
-        source: 'manual',
-        input_type: voiceMode ? 'voice' : 'text',
-        created_at: new Date().toISOString(),
-      });
+      // 移除本地addMessage - 依赖WebSocket chat_sync同步
       setInputText('');
       stopRecording();
       setVoiceMode(false);
-      setTimeout(() => startStream(), 500);
+      clearError();
+      if (historicalMessagesLoaded) {
+        setTimeout(() => startStream(), 500);
+      }
     }
   };
 
@@ -107,6 +133,23 @@ export default function CandidatePage() {
           {connected ? '已连接' : '未连接'}
         </span>
       </div>
+
+      {/* 连接状态提示 */}
+      {isReconnecting && (
+        <div className="status-banner reconnecting" role="status" aria-live="polite">
+          正在重新连接... ({reconnectAttempt}/{maxReconnectAttempts})
+        </div>
+      )}
+      {showReconnectPrompt && (
+        <div className="status-banner disconnected" role="alert" aria-live="assertive">
+          连接中断，请刷新页面
+        </div>
+      )}
+      {sseError && (
+        <div className="status-banner error" role="alert" aria-live="assertive">
+          {sseError}
+        </div>
+      )}
 
       <div className="chat-messages">
         {messages.map((msg) => (
