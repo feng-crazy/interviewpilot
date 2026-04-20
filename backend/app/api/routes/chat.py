@@ -7,6 +7,7 @@ from datetime import datetime
 import uuid
 import asyncio
 import json
+import time
 
 from ...database import get_db, Interview, ChatMessage
 from ...services.llm_service import LLMService
@@ -67,13 +68,41 @@ async def chat_stream(interview_id: str, db: Session = Depends(get_db)):
 
     async def generate():
         full_response = ""
+        message_id = str(uuid.uuid4())  # 预生成消息ID
+        last_broadcast_time = time.time()
+        accumulated_tokens = ""
+
+        # 发送开始标志
+        await ws_manager.broadcast(
+            interview_id,
+            {
+                "type": "streaming_sync",
+                "message_id": message_id,
+                "content": "",
+                "is_start": True,
+            },
+        )
 
         try:
             async for token in llm_service.generate_stream(prompt):
                 full_response += token
+                accumulated_tokens += token
                 yield ServerSentEvent(
                     data=json.dumps({"content": token}), event="token"
                 )
+
+                # 每100ms批量推送WebSocket
+                current_time = time.time()
+                if current_time - last_broadcast_time >= 0.1:
+                    await ws_manager.broadcast(
+                        interview_id,
+                        {
+                            "type": "streaming_sync",
+                            "message_id": message_id,
+                            "content": accumulated_tokens,
+                        },
+                    )
+                    last_broadcast_time = current_time
 
             if "END:" in full_response:
                 interview.status = "ended"
@@ -100,7 +129,7 @@ async def chat_stream(interview_id: str, db: Session = Depends(get_db)):
                 sequence += 1
 
                 ai_message = ChatMessage(
-                    id=str(uuid.uuid4()),
+                    id=message_id,  # 使用预生成的ID
                     interview_id=interview_id,
                     sequence=sequence,
                     role="ai",
@@ -123,11 +152,12 @@ async def chat_stream(interview_id: str, db: Session = Depends(get_db)):
                     event="done",
                 )
 
+                # streaming_end替代chat_sync
                 await ws_manager.broadcast(
                     interview_id,
                     {
-                        "type": "chat_sync",
-                        "message": {
+                        "type": "streaming_end",
+                        "final_message": {
                             "id": ai_message.id,
                             "sequence": ai_message.sequence,
                             "role": "ai",
