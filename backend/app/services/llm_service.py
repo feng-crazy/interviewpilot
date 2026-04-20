@@ -101,6 +101,7 @@ class LLMService:
         self,
         prompt: str,
         system_prompt: Optional[str] = None,
+        timeout: Optional[float] = None,
     ) -> str:
         start_time = time.time()
         prompt_length = len(prompt)
@@ -132,8 +133,9 @@ class LLMService:
             "stream": False,
         }
 
+        actual_timeout = timeout if timeout is not None else self.timeout
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            async with httpx.AsyncClient(timeout=actual_timeout) as client:
                 response = await client.post(
                     f"{self.api_url}/chat/completions",
                     headers=headers,

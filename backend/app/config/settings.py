@@ -32,7 +32,8 @@ class Settings:
     # LLM Settings
     LLM_MAX_TOKENS: int = 2000
     LLM_TEMPERATURE: float = 0.7
-    LLM_TIMEOUT: int = 30
+    LLM_TIMEOUT: int = 30  # Default timeout for streaming chat (seconds)
+    LLM_REPORT_TIMEOUT: int = 120  # Extended timeout for report generation (seconds)
 
     # Logging Settings
     LOG_LEVEL: str = "INFO"
@@ -59,6 +60,9 @@ class Settings:
         self.LOG_LEVEL = os.getenv("LOG_LEVEL", self.LOG_LEVEL)
         self.LOG_DIR = os.getenv("LOG_DIR", self.LOG_DIR)
         self.LOG_MAX_DAYS = int(os.getenv("LOG_MAX_DAYS", str(self.LOG_MAX_DAYS)))
+        self.LLM_REPORT_TIMEOUT = int(
+            os.getenv("LLM_REPORT_TIMEOUT", str(self.LLM_REPORT_TIMEOUT))
+        )
 
 
 @lru_cache()
