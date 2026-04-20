@@ -4,11 +4,13 @@ import uuid
 import time
 
 from ..database import Interview, ChatMessage, InterviewReport
+from ..config import get_settings
 from .llm_service import LLMService
 from .prompt_service import PromptService
 from ..config.logging import get_logger
 import structlog.contextvars as contextvars
 
+settings = get_settings()
 llm_service = LLMService()
 prompt_service = PromptService()
 
@@ -180,7 +182,7 @@ class ReportService:
         for key, value in variables.items():
             template = template.replace(f"{{{key}}}", str(value) if value else "")
 
-        return await llm_service.generate(template)
+        return await llm_service.generate(template, timeout=settings.LLM_REPORT_TIMEOUT)
 
     def _parse_decision(self, hiring_text: str) -> str:
         if "强烈推荐" in hiring_text:
