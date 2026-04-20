@@ -20,6 +20,6 @@ def get_db():
 
 
 def init_db():
-    from .models import Interview, ChatMessage, InterviewReport
+    from .models import Interview, ChatMessage, InterviewReport, JobPosition
 
     Base.metadata.create_all(bind=engine)

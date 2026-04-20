@@ -6,6 +6,9 @@ import CandidatePage from './pages/CandidatePage';
 import InterviewerPage from './pages/InterviewerPage';
 import HistoryPage from './pages/HistoryPage';
 import DetailPage from './pages/DetailPage';
+import JobPositionListPage from './pages/JobPositionListPage';
+import JobPositionDetailPage from './pages/JobPositionDetailPage';
+import JobPositionCreatePage from './pages/JobPositionCreatePage';
 
 export const router = createBrowserRouter([
   {
@@ -18,6 +21,9 @@ export const router = createBrowserRouter([
       { path: 'interview/:id/interviewer', element: <InterviewerPage /> },
       { path: 'history', element: <HistoryPage /> },
       { path: 'detail/:id', element: <DetailPage /> },
+      { path: 'positions', element: <JobPositionListPage /> },
+      { path: 'positions/:id', element: <JobPositionDetailPage /> },
+      { path: 'positions/create', element: <JobPositionCreatePage /> },
     ],
   },
 ]);

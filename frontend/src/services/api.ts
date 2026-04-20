@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { InterviewCreateRequest, JobPositionCreateRequest, JobPositionUpdateRequest } from '../types/interview';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -9,13 +10,7 @@ export const api = axios.create({
   },
 });
 
-export const createInterview = async (data: {
-  jd_text: string;
-  company_info: string;
-  interviewer_info: string;
-  process_requirement: string;
-  constraint_info: string;
-}) => {
+export const createInterview = async (data: InterviewCreateRequest) => {
   const response = await api.post('/interview/create', data);
   return response.data;
 };
@@ -64,6 +59,40 @@ export const optimizeContent = async (
     field_type: fieldType,
     field_content: fieldContent,
     context,
+  });
+  return response.data;
+};
+
+export const createJobPosition = async (data: JobPositionCreateRequest) => {
+  const response = await api.post('/job-position/create', data);
+  return response.data;
+};
+
+export const getJobPositionList = async (limit = 50, offset = 0) => {
+  const response = await api.get('/job-position/list', { params: { limit, offset } });
+  return response.data;
+};
+
+export const getJobPosition = async (id: string) => {
+  const response = await api.get(`/job-position/${id}`);
+  return response.data;
+};
+
+export const updateJobPosition = async (id: string, data: JobPositionUpdateRequest) => {
+  const response = await api.put(`/job-position/${id}`, data);
+  return response.data;
+};
+
+export const deleteJobPosition = async (id: string) => {
+  const response = await api.delete(`/job-position/${id}`);
+  return response.data;
+};
+
+export const parseResume = async (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post('/resume/parse', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
   return response.data;
 };

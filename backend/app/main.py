@@ -11,6 +11,8 @@ from .api.routes.websocket import router as websocket_router
 from .api.routes.report import router as report_router
 from .api.routes.speech import router as speech_router
 from .api.routes.optimize import router as optimize_router
+from .api.routes.job_position import router as job_position_router
+from .api.routes.resume import router as resume_router
 
 settings = get_settings()
 
@@ -42,6 +44,10 @@ app.include_router(websocket_router, tags=["websocket"])
 app.include_router(report_router, tags=["report"])
 app.include_router(speech_router, tags=["speech"])
 app.include_router(optimize_router, tags=["optimize"])
+app.include_router(
+    job_position_router, prefix="/api/job-position", tags=["job_position"]
+)
+app.include_router(resume_router, prefix="/api/resume", tags=["resume"])
 
 
 @app.get("/")

@@ -1,29 +1,14 @@
-import json
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, Field
+from .job_position import JobPositionDetail
 
 
 class InterviewCreateRequest(BaseModel):
-    jd_text: str = Field(..., description="岗位JD")
-    company_info: str = Field(..., description="公司信息")
-    interviewer_info: str = Field(..., description="面试官信息")
-    process_requirement: str = Field(..., description="流程要求")
-    constraint_info: str = Field(..., description="约束信息JSON")
-
-    def get_max_questions(self) -> int:
-        try:
-            data = json.loads(self.constraint_info)
-            return data.get("max_questions", 10)
-        except:
-            return 10
-
-    def get_max_duration(self) -> int:
-        try:
-            data = json.loads(self.constraint_info)
-            return data.get("max_duration", 1800)
-        except:
-            return 1800
+    job_position_id: str = Field(..., description="岗位ID")
+    resume_text: Optional[str] = Field(None, description="简历文本")
+    max_questions: Optional[int] = Field(None, description="最大问题数(覆盖默认)")
+    max_duration: Optional[int] = Field(None, description="最大时长(秒,覆盖默认)")
 
 
 class InterviewResponse(BaseModel):
@@ -34,10 +19,8 @@ class InterviewResponse(BaseModel):
 
 class InterviewConfig(BaseModel):
     id: str
-    jd_text: str
-    company_info: str
-    interviewer_info: str
-    process_requirement: str
+    job_position_id: str
+    resume_text: Optional[str] = None
     max_questions: int
     max_duration: int
     status: str
@@ -71,14 +54,15 @@ class ReportDTO(BaseModel):
 
 class InterviewDetail(BaseModel):
     config: InterviewConfig
+    job_position: Optional[JobPositionDetail] = None
     messages: List[ChatMessageDTO]
     report: Optional[ReportDTO] = None
 
 
 class InterviewListItem(BaseModel):
     id: str
-    jd_text: str
-    interviewer_info: str
+    job_position_id: str
+    job_position_name: str
     status: str
     created_at: datetime
     ended_at: Optional[datetime] = None

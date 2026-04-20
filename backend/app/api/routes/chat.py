@@ -51,10 +51,11 @@ async def chat_stream(interview_id: str, db: Session = Depends(get_db)):
     prompt = prompt_service.render_template(
         "question_prompt",
         {
-            "jd_text": interview.jd_text,
-            "company_info": interview.company_info,
-            "interviewer_info": interview.interviewer_info,
-            "process_requirement": interview.process_requirement,
+            "jd_text": interview.job_position.jd_text,
+            "company_info": interview.job_position.company_info,
+            "interviewer_info": interview.job_position.interviewer_info,
+            "process_requirement": interview.job_position.process_requirement,
+            "resume_text": interview.resume_text or "未提供简历信息",
             "max_questions": interview.max_questions,
             "current_question_count": ai_questions,
             "max_duration": interview.max_duration // 60,

@@ -14,6 +14,7 @@ export default function InterviewerPage() {
   const [manualInput, setManualInput] = useState('');
   const [reportLoading, setReportLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [resumeExpanded, setResumeExpanded] = useState(false);
 
   const { connected, lastMessage, sendMessage, sendControl } = useWebSocket(id || '');
 
@@ -129,6 +130,34 @@ export default function InterviewerPage() {
           </div>
         </div>
       )}
+
+      <div style={{ padding: 'var(--spacing-md)', background: 'var(--color-gray-50)', borderBottom: '1px solid var(--color-gray-200)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--color-gray-700)' }}>
+            简历摘要
+          </span>
+          <button
+            className="button button-ghost"
+            onClick={() => setResumeExpanded(!resumeExpanded)}
+            style={{ padding: 'var(--spacing-xs) var(--spacing-sm)', fontSize: '0.75rem' }}
+          >
+            {resumeExpanded ? '收起' : '展开'}
+          </button>
+        </div>
+        {resumeExpanded && (
+          <div style={{ marginTop: 'var(--spacing-md)', maxHeight: '200px', overflow: 'auto' }}>
+            {config?.resume_text ? (
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-gray-700)', whiteSpace: 'pre-wrap' }}>
+                {config.resume_text}
+              </p>
+            ) : (
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-gray-500)' }}>
+                未提供简历信息
+              </p>
+            )}
+          </div>
+        )}
+      </div>
 
       <div className="chat-messages">
         {messages.length === 0 ? (

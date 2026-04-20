@@ -92,7 +92,7 @@ export default function CandidatePage() {
         <div>
           <h3 className="chat-header-title">AI面试</h3>
           <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginTop: 'var(--spacing-xs)' }}>
-            {config?.jd_text?.slice(0, 50)}...
+            {config?.job_position_id ? `岗位ID: ${config?.job_position_id?.slice(0, 8)}...` : '面试进行中'}
           </p>
         </div>
         <span 

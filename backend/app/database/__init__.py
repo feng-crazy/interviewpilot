@@ -1,4 +1,12 @@
-from .session import get_db, init_db
-from .models import Interview, ChatMessage, InterviewReport
+from .session import get_db, init_db, SessionLocal
+from .models import Interview, ChatMessage, InterviewReport, JobPosition
 
-__all__ = ["get_db", "init_db", "Interview", "ChatMessage", "InterviewReport"]
+__all__ = [
+    "get_db",
+    "init_db",
+    "SessionLocal",
+    "Interview",
+    "ChatMessage",
+    "InterviewReport",
+    "JobPosition",
+]

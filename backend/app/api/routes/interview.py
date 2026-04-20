@@ -4,7 +4,14 @@ from typing import List
 import uuid
 import json
 
-from ...database import get_db, init_db, Interview, ChatMessage, InterviewReport
+from ...database import (
+    get_db,
+    init_db,
+    Interview,
+    ChatMessage,
+    InterviewReport,
+    JobPosition,
+)
 from ...models.interview import (
     InterviewCreateRequest,
     InterviewResponse,
@@ -28,18 +35,55 @@ def generate_interview_urls(interview_id: str) -> tuple:
 async def create_interview(
     request: InterviewCreateRequest, db: Session = Depends(get_db)
 ):
+    job_position = (
+        db.query(JobPosition).filter(JobPosition.id == request.job_position_id).first()
+    )
+    if not job_position:
+        raise HTTPException(status_code=404, detail="Job position not found")
+
     interview_id = str(uuid.uuid4())
     interviewer_url, candidate_url = generate_interview_urls(interview_id)
 
+    max_questions = request.max_questions or job_position.default_max_questions
+    max_duration = request.max_duration or job_position.default_max_duration
+
     interview = Interview(
         id=interview_id,
-        jd_text=request.jd_text,
-        company_info=request.company_info,
-        interviewer_info=request.interviewer_info,
-        process_requirement=request.process_requirement,
-        constraint_info=request.constraint_info,
-        max_questions=request.get_max_questions(),
-        max_duration=request.get_max_duration(),
+        job_position_id=request.job_position_id,
+        resume_text=request.resume_text,
+        max_questions=max_questions,
+        max_duration=max_duration,
+        interviewer_url=interviewer_url,
+        candidate_url=candidate_url,
+        status="pending",
+        ai_managed=True,
+    )
+
+    db.add(interview)
+    db.commit()
+    db.refresh(interview)
+
+    return InterviewResponse(
+        interview_id=interview.id,
+        interviewer_url=interview.interviewer_url,
+        candidate_url=interview.candidate_url,
+    )
+    if not job_position:
+        raise HTTPException(status_code=404, detail="Job position not found")
+
+    interview_id = str(uuid.uuid4())
+    interviewer_url, candidate_url = generate_interview_urls(interview_id)
+
+    # Use override values or defaults from JobPosition
+    max_questions = request.max_questions or job_position.default_max_questions
+    max_duration = request.max_duration or job_position.default_max_duration
+
+    interview = Interview(
+        id=interview_id,
+        job_position_id=request.job_position_id,
+        resume_text=request.resume_text,
+        max_questions=max_questions,
+        max_duration=max_duration,
         interviewer_url=interviewer_url,
         candidate_url=candidate_url,
         status="pending",

@@ -40,7 +40,7 @@ class ReportService:
         ability_evaluation = await self._run_template(
             "ability_eval",
             {
-                "jd_text": interview.jd_text,
+                "jd_text": interview.job_position.jd_text,
                 "chat_summary": chat_summary,
             },
         )
@@ -48,7 +48,7 @@ class ReportService:
         match_analysis = await self._run_template(
             "match_analysis",
             {
-                "jd_text": interview.jd_text,
+                "jd_text": interview.job_position.jd_text,
                 "ability_evaluation": ability_evaluation,
             },
         )
@@ -72,7 +72,7 @@ class ReportService:
         followup_questions = await self._run_template(
             "followup",
             {
-                "jd_text": interview.jd_text,
+                "jd_text": interview.job_position.jd_text,
                 "hiring_recommendation": hiring_recommendation,
             },
         )

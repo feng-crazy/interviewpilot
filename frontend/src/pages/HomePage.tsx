@@ -6,14 +6,18 @@ export default function HomePage() {
       <div className="hero">
         <h1 className="hero-title">InterviewPilot</h1>
         <p className="hero-subtitle">
-          企业AI面试智能体，自动化初面流程，生成人才画像与录用建议
+          企业AI面试智能体，先创建岗位，再开始面试，自动化初面流程
         </p>
-        
+
         <div className="hero-actions">
-          <Link to="/config" className="button button-lg">
-            开始创建面试
+          <Link to="/positions" className="button button-lg">
+            岗位库
           </Link>
-          
+
+          <Link to="/positions/create" className="button button-secondary button-lg">
+            新建岗位
+          </Link>
+
           <Link to="/history" className="button button-secondary button-lg">
             查看面试记录
           </Link>

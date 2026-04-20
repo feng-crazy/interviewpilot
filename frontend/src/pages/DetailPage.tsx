@@ -1,18 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getInterviewDetail } from '../services/api';
-import type { InterviewDetail } from '../types/interview';
+import { getInterviewDetail, getJobPosition } from '../services/api';
+import type { InterviewDetail, JobPosition } from '../types/interview';
 
 export default function DetailPage() {
   const { id } = useParams<{ id: string }>();
   const [detail, setDetail] = useState<InterviewDetail | null>(null);
+  const [jobPosition, setJobPosition] = useState<JobPosition | null>(null);
   const [activeTab, setActiveTab] = useState('config');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (id) {
-      getInterviewDetail(id).then((data) => {
+      getInterviewDetail(id).then(async (data) => {
         setDetail(data);
+        if (data.config.job_position_id) {
+          try {
+            const positionData = await getJobPosition(data.config.job_position_id);
+            setJobPosition(positionData);
+          } catch (error) {
+            console.error('Failed to load job position:', error);
+          }
+        }
         setLoading(false);
       });
     }
@@ -53,8 +62,33 @@ export default function DetailPage() {
         </Link>
       </div>
 
+      {detail.config.job_position_id && (
+        <div style={{ padding: 'var(--spacing-md)', background: 'var(--color-primary-50)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--spacing-lg)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginBottom: 'var(--spacing-xs)' }}>岗位信息</p>
+              <p style={{ fontSize: '0.875rem', fontWeight: '600' }}>
+                {jobPosition?.name || '加载中...'}
+              </p>
+              {jobPosition && (
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-600)', marginTop: 'var(--spacing-xs)' }}>
+                  {jobPosition.company_info.slice(0, 50)}...
+                </p>
+              )}
+            </div>
+            <Link
+              to={`/positions/${detail.config.job_position_id}`}
+              className="button button-secondary"
+              style={{ fontSize: '0.75rem', padding: 'var(--spacing-xs) var(--spacing-md)' }}
+            >
+              查看岗位详情
+            </Link>
+          </div>
+        </div>
+      )}
+
       <div role="tablist" aria-label="面试详情选项卡" className="tab-list" style={{ marginBottom: 'var(--spacing-lg)' }}>
-        <button 
+        <button
           role="tab"
           aria-selected={activeTab === 'config'}
           aria-controls="tabpanel-config"
