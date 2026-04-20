@@ -30,6 +30,12 @@ class ReportService:
 
         chat_messages = prompt_service.format_chat_history(messages)
 
+        job_position = interview.job_position
+        jd_text = job_position.jd_text
+        company_info = job_position.company_info
+        interviewer_info = job_position.interviewer_info
+        process_requirement = job_position.process_requirement
+
         chat_summary = await self._run_template(
             "chat_summary",
             {
@@ -40,7 +46,9 @@ class ReportService:
         ability_evaluation = await self._run_template(
             "ability_eval",
             {
-                "jd_text": interview.job_position.jd_text,
+                "jd_text": jd_text,
+                "company_info": company_info,
+                "interviewer_info": interviewer_info,
                 "chat_summary": chat_summary,
             },
         )
@@ -48,7 +56,10 @@ class ReportService:
         match_analysis = await self._run_template(
             "match_analysis",
             {
-                "jd_text": interview.job_position.jd_text,
+                "jd_text": jd_text,
+                "company_info": company_info,
+                "interviewer_info": interviewer_info,
+                "process_requirement": process_requirement,
                 "ability_evaluation": ability_evaluation,
             },
         )
@@ -56,6 +67,7 @@ class ReportService:
         pros_cons = await self._run_template(
             "pros_cons",
             {
+                "interviewer_info": interviewer_info,
                 "chat_summary": chat_summary,
                 "ability_evaluation": ability_evaluation,
             },
@@ -64,6 +76,9 @@ class ReportService:
         hiring_recommendation = await self._run_template(
             "hiring",
             {
+                "company_info": company_info,
+                "interviewer_info": interviewer_info,
+                "process_requirement": process_requirement,
                 "match_analysis": match_analysis,
                 "pros_cons": pros_cons,
             },
@@ -72,7 +87,9 @@ class ReportService:
         followup_questions = await self._run_template(
             "followup",
             {
-                "jd_text": interview.job_position.jd_text,
+                "jd_text": jd_text,
+                "interviewer_info": interviewer_info,
+                "process_requirement": process_requirement,
                 "hiring_recommendation": hiring_recommendation,
             },
         )
