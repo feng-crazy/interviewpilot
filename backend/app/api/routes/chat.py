@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sse_starlette.sse import EventSourceResponse, ServerSentEvent
 from datetime import datetime
@@ -90,13 +91,13 @@ async def chat_stream(interview_id: str, db: Session = Depends(get_db)):
             elif "QUESTION:" in full_response:
                 question_content = full_response.replace("QUESTION:", "").strip()
 
-                last_message = (
-                    db.query(ChatMessage)
+                sequence = (
+                    db.query(func.max(ChatMessage.sequence))
                     .filter(ChatMessage.interview_id == interview_id)
-                    .order_by(ChatMessage.sequence.desc())
-                    .first()
+                    .scalar()
+                    or 0
                 )
-                sequence = (last_message.sequence + 1) if last_message else 1
+                sequence += 1
 
                 ai_message = ChatMessage(
                     id=str(uuid.uuid4()),
