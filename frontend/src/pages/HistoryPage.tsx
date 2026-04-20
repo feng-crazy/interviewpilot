@@ -135,7 +135,7 @@ export default function HistoryPage() {
                 {item.status === 'ended' && (
                   <button 
                     className="button button-ghost" 
-                    style={{ color: 'var(--color-red-600)' }}
+                    style={{ color: 'var(--color-error-600)' }}
                     onClick={() => handleDelete(item.id)}
                   >
                     删除
