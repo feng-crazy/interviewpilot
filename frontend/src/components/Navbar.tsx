@@ -28,11 +28,11 @@ export default function Navbar() {
         </Link>
         
         <Link 
-          to="/config" 
-          className={`navbar-link ${isActive('/config') ? 'active' : ''}`}
-          aria-current={isActive('/config') ? 'page' : undefined}
+          to="/positions" 
+          className={`navbar-link ${isActive('/positions') ? 'active' : ''}`}
+          aria-current={isActive('/positions') ? 'page' : undefined}
         >
-          创建面试
+          岗位库
         </Link>
         
         <Link 

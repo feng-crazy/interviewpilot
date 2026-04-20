@@ -1,12 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
 import uuid
-import json
 
 from ...database import (
     get_db,
-    init_db,
     Interview,
     ChatMessage,
     InterviewReport,
@@ -68,37 +65,6 @@ async def create_interview(
         interviewer_url=interview.interviewer_url,
         candidate_url=interview.candidate_url,
     )
-    if not job_position:
-        raise HTTPException(status_code=404, detail="Job position not found")
-
-    interview_id = str(uuid.uuid4())
-    interviewer_url, candidate_url = generate_interview_urls(interview_id)
-
-    # Use override values or defaults from JobPosition
-    max_questions = request.max_questions or job_position.default_max_questions
-    max_duration = request.max_duration or job_position.default_max_duration
-
-    interview = Interview(
-        id=interview_id,
-        job_position_id=request.job_position_id,
-        resume_text=request.resume_text,
-        max_questions=max_questions,
-        max_duration=max_duration,
-        interviewer_url=interviewer_url,
-        candidate_url=candidate_url,
-        status="pending",
-        ai_managed=True,
-    )
-
-    db.add(interview)
-    db.commit()
-    db.refresh(interview)
-
-    return InterviewResponse(
-        interview_id=interview.id,
-        interviewer_url=interview.interviewer_url,
-        candidate_url=interview.candidate_url,
-    )
 
 
 @router.get("/history", response_model=InterviewListResponse)
@@ -118,8 +84,10 @@ async def get_interview_history(
     items = [
         InterviewListItem(
             id=i.id,
-            jd_text=i.jd_text[:100] + "..." if len(i.jd_text) > 100 else i.jd_text,
-            interviewer_info=i.interviewer_info,
+            jd_text=i.job_position.jd_text[:100] + "..."
+            if len(i.job_position.jd_text) > 100
+            else i.job_position.jd_text,
+            interviewer_info=i.job_position.interviewer_info,
             status=i.status,
             created_at=i.created_at,
             ended_at=i.ended_at,
@@ -138,9 +106,11 @@ async def get_interview_config(interview_id: str, db: Session = Depends(get_db))
 
     return InterviewConfig(
         id=interview.id,
-        jd_text=interview.jd_text,
-        company_info=interview.company_info,
-        interviewer_info=interview.interviewer_info,
+        job_position_id=interview.job_position_id,
+        resume_text=interview.resume_text,
+        jd_text=interview.job_position.jd_text,
+        company_info=interview.job_position.company_info,
+        interviewer_info=interview.job_position.interviewer_info,
         interview_scheme=interview.job_position.interview_scheme,
         max_questions=interview.max_questions,
         max_duration=interview.max_duration,
@@ -200,9 +170,11 @@ async def get_interview_detail(interview_id: str, db: Session = Depends(get_db))
 
     config = InterviewConfig(
         id=interview.id,
-        jd_text=interview.jd_text,
-        company_info=interview.company_info,
-        interviewer_info=interview.interviewer_info,
+        job_position_id=interview.job_position_id,
+        resume_text=interview.resume_text,
+        jd_text=interview.job_position.jd_text,
+        company_info=interview.job_position.company_info,
+        interviewer_info=interview.job_position.interviewer_info,
         interview_scheme=interview.job_position.interview_scheme,
         max_questions=interview.max_questions,
         max_duration=interview.max_duration,

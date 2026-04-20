@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getJobPositionList } from '../services/api';
+import ResumeUploadModal from '../components/ResumeUploadModal';
 import type { JobPositionListItem } from '../types/interview';
 
 export default function JobPositionListPage() {
+  const navigate = useNavigate();
   const [positions, setPositions] = useState<JobPositionListItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showResumeModal, setShowResumeModal] = useState(false);
+  const [selectedPositionId, setSelectedPositionId] = useState<string | null>(null);
 
   useEffect(() => {
     getJobPositionList().then((data) => {
@@ -13,6 +17,10 @@ export default function JobPositionListPage() {
       setLoading(false);
     });
   }, []);
+
+  const handleInterviewCreated = (interviewId: string) => {
+    navigate(`/interview/${interviewId}/interviewer`);
+  };
 
   if (loading) {
     return (
@@ -78,7 +86,10 @@ export default function JobPositionListPage() {
                 <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
                   <button
                     className="button button-secondary"
-                    onClick={() => alert('开始面试功能即将上线')}
+                    onClick={() => {
+                      setSelectedPositionId(position.id);
+                      setShowResumeModal(true);
+                    }}
                   >
                     开始面试
                   </button>
@@ -90,6 +101,15 @@ export default function JobPositionListPage() {
             </div>
           ))}
         </div>
+      )}
+
+      {showResumeModal && selectedPositionId && (
+        <ResumeUploadModal
+          isOpen={showResumeModal}
+          onClose={() => setShowResumeModal(false)}
+          jobPositionId={selectedPositionId}
+          onStartInterview={handleInterviewCreated}
+        />
       )}
     </div>
   );

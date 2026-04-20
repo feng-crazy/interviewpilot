@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getJobPosition, updateJobPosition, deleteJobPosition } from '../services/api';
+import ResumeUploadModal from '../components/ResumeUploadModal';
 import type { JobPosition, JobPositionUpdateRequest } from '../types/interview';
 
 export default function JobPositionDetailPage() {
@@ -11,6 +12,7 @@ export default function JobPositionDetailPage() {
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showResumeModal, setShowResumeModal] = useState(false);
   const [formData, setFormData] = useState<JobPositionUpdateRequest>({});
 
   useEffect(() => {
@@ -64,8 +66,11 @@ export default function JobPositionDetailPage() {
   };
 
   const handleStartInterview = () => {
-    // Placeholder - will trigger ResumeUploadModal later
-    console.log('Start interview for position:', id);
+    setShowResumeModal(true);
+  };
+
+  const handleInterviewCreated = (interviewId: string) => {
+    navigate(`/interview/${interviewId}/interviewer`);
   };
 
   const handleInputChange = (field: keyof JobPositionUpdateRequest, value: string | number) => {
@@ -328,6 +333,13 @@ export default function JobPositionDetailPage() {
           </div>
         </div>
       )}
+
+      <ResumeUploadModal
+        isOpen={showResumeModal}
+        onClose={() => setShowResumeModal(false)}
+        jobPositionId={id!}
+        onStartInterview={handleInterviewCreated}
+      />
     </div>
   );
 }

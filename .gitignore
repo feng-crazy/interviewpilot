@@ -268,3 +268,6 @@ vite.config.ts.timestamp-*
 .playwright-mcp/
 .ruff-cache/
 .sisyphus
+
+*.db
+interviewpilot.db

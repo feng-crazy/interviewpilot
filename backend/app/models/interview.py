@@ -27,6 +27,10 @@ class InterviewConfig(BaseModel):
     ai_managed: bool
     candidate_url: str
     created_at: datetime
+    jd_text: str
+    company_info: str
+    interviewer_info: str
+    interview_scheme: str
 
 
 class ChatMessageDTO(BaseModel):
@@ -61,8 +65,8 @@ class InterviewDetail(BaseModel):
 
 class InterviewListItem(BaseModel):
     id: str
-    job_position_id: str
-    job_position_name: str
+    jd_text: str
+    interviewer_info: str
     status: str
     created_at: datetime
     ended_at: Optional[datetime] = None
