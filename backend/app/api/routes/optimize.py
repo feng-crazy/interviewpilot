@@ -10,7 +10,7 @@ llm_service = LLMService()
 
 
 class OptimizeRequest(BaseModel):
-    field_type: str  # "jd" | "company" | "interviewer" | "process"
+    field_type: str  # "jd" | "company" | "interviewer" | "scheme"
     field_content: str  # 当前textarea内容（可能为空）
     context: Dict[str, str]  # 其他已填字段
 
@@ -33,7 +33,7 @@ def build_context_summary(context: Dict[str, str], field_type: str) -> str:
         "jd": "jd_text",
         "company": "company_info",
         "interviewer": "interviewer_info",
-        "process": "interview_scheme",
+        "scheme": "interview_scheme",
     }
 
     exclude_key = field_to_context_key.get(field_type)
@@ -51,7 +51,7 @@ def build_context_summary(context: Dict[str, str], field_type: str) -> str:
 async def optimize_field(request: OptimizeRequest):
     """优化配置项内容"""
     # 验证field_type
-    valid_types = ["jd", "company", "interviewer", "process"]
+    valid_types = ["jd", "company", "interviewer", "scheme"]
     if request.field_type not in valid_types:
         raise HTTPException(
             status_code=400, detail=f"Invalid field_type: {request.field_type}"

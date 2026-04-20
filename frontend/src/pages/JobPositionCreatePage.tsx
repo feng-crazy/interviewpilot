@@ -20,7 +20,7 @@ export default function JobPositionCreatePage() {
     jd: false,
     company: false,
     interviewer: false,
-    process: false,
+    scheme: false,
   });
 
   function buildContext(fieldType: string, data: typeof formData) {
@@ -28,7 +28,7 @@ export default function JobPositionCreatePage() {
       jd: ['company_info', 'interviewer_info', 'interview_scheme'],
       company: ['jd_text', 'interviewer_info', 'interview_scheme'],
       interviewer: ['jd_text', 'company_info', 'interview_scheme'],
-      process: ['jd_text', 'company_info', 'interviewer_info'],
+      scheme: ['jd_text', 'company_info', 'interviewer_info'],
     };
 
     const context: Record<string, string> = {};
@@ -52,7 +52,7 @@ export default function JobPositionCreatePage() {
         jd: 'jd_text',
         company: 'company_info',
         interviewer: 'interviewer_info',
-        process: 'interview_scheme',
+        scheme: 'interview_scheme',
       };
 
       setFormData({ ...formData, [fieldNameMap[fieldType]]: result.optimized_content });
@@ -176,11 +176,11 @@ export default function JobPositionCreatePage() {
               <button
                 type="button"
                 className="ai-optimize-button"
-                onClick={() => handleOptimize('process', formData.interview_scheme)}
-                disabled={optimizeLoading.process}
+                onClick={() => handleOptimize('scheme', formData.interview_scheme)}
+                disabled={optimizeLoading.scheme}
                 title="AI优化"
               >
-                {optimizeLoading.process ? <span className="loading-spinner"></span> : '✨'}
+                {optimizeLoading.scheme ? <span className="loading-spinner"></span> : '✨'}
               </button>
             </div>
             <textarea

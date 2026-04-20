@@ -16,7 +16,7 @@
 - `backend/app/config/prompts/optimization/jd_optimization.md` - JD优化提示词
 - `backend/app/config/prompts/optimization/company_optimization.md` - 公司信息优化提示词
 - `backend/app/config/prompts/optimization/interviewer_optimization.md` - 面试偏好信息优化提示词
-- `backend/app/config/prompts/optimization/process_optimization.md` - 面试方案优化提示词
+- `backend/app/config/prompts/optimization/scheme_optimization.md` - 面试方案优化提示词
 - `backend/app/api/routes/optimize.py` - 优化API路由
 
 **修改文件：**
@@ -157,9 +157,9 @@ git commit -m "feat: add interviewer info optimization prompt template"
 ### Task 4: 创建面试方案优化提示词模板
 
 **Files:**
-- Create: `backend/app/config/prompts/optimization/process_optimization.md`
+- Create: `backend/app/config/prompts/optimization/scheme_optimization.md`
 
-- [ ] **Step 1: 编写process_optimization.md提示词**
+- [ ] **Step 1: 编写scheme_optimization.md提示词**
 
 ```markdown
 你是一个面试流程设计专家。请帮助用户优化面试面试方案内容。
@@ -188,7 +188,7 @@ git commit -m "feat: add interviewer info optimization prompt template"
 - [ ] **Step 2: 提交**
 
 ```bash
-git add backend/app/config/prompts/optimization/process_optimization.md
+git add backend/app/config/prompts/optimization/scheme_optimization.md
 git commit -m "feat: add scheme optimization prompt template"
 ```
 

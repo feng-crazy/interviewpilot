@@ -23,7 +23,7 @@ backend/app/config/prompts/optimization/
 ├── jd_optimization.md          # JD优化提示词
 ├── company_optimization.md     # 公司信息优化提示词
 ├── interviewer_optimization.md # 面试偏好信息优化提示词
-└── process_optimization.md     # 面试方案优化提示词
+└── scheme_optimization.md     # 面试方案优化提示词
 ```
 
 **新增API路由：**
@@ -154,7 +154,7 @@ else:
 - 保持真实可信，避免过于理想化
 ```
 
-#### 4. process_optimization.md
+#### 4. scheme_optimization.md
 
 ```markdown
 你是一个面试流程设计专家。请帮助用户优化面试面试方案内容。
