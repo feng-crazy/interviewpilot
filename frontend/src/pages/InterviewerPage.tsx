@@ -46,7 +46,12 @@ export default function InterviewerPage() {
   useEffect(() => {
     if (lastMessage?.type === 'chat_sync' && lastMessage.message) {
       const msg = lastMessage.message;
-      setMessages((prev) => [...prev, msg]);
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === msg.id)) {
+          return prev; // Skip duplicate
+        }
+        return [...prev, msg];
+      });
     }
     if (lastMessage?.type === 'streaming_sync') {
       if (lastMessage.is_start) {
@@ -58,7 +63,12 @@ export default function InterviewerPage() {
     }
     if (lastMessage?.type === 'streaming_end' && lastMessage.final_message) {
       const finalMsg = lastMessage.final_message;
-      setMessages((prev) => [...prev, finalMsg]);
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === finalMsg.id)) {
+          return prev; // Skip duplicate
+        }
+        return [...prev, finalMsg];
+      });
       setStreamingMessageId(null);
       setStreamingContent('');
     }
