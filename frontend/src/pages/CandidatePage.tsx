@@ -36,7 +36,17 @@ export default function CandidatePage() {
     initializeMessageIds,
   } = useWebSocket(id || '');
 
-  const { isRecording, transcript, finalTranscript, startRecording, stopRecording, getFullTranscript } = useSpeechRecognition();
+  const { 
+    isRecording, 
+    isConnected, 
+    transcript, 
+    finalTranscript, 
+    error: speechError,
+    startRecording, 
+    stopRecording, 
+    getFullTranscript,
+    clearError: clearSpeechError,
+  } = useSpeechRecognition();
 
   useEffect(() => {
     if (id) {
@@ -78,11 +88,11 @@ export default function CandidatePage() {
     const textToSend = inputText.trim() || getFullTranscript().trim();
     if (textToSend) {
       sendMessage('candidate', textToSend, voiceMode ? 'voice' : 'text');
-      // 移除本地addMessage - 依赖WebSocket chat_sync同步
       setInputText('');
       stopRecording();
       setVoiceMode(false);
       clearError();
+      clearSpeechError();
       if (historicalMessagesLoaded) {
         setTimeout(() => startStream(), 500);
       }
@@ -149,6 +159,17 @@ export default function CandidatePage() {
           {sseError}
         </div>
       )}
+      {speechError && (
+        <div className="status-banner error" role="alert" aria-live="assertive">
+          语音识别错误: {speechError}
+          <button 
+            onClick={clearSpeechError}
+            style={{ marginLeft: '10px', background: 'transparent', border: 'none', cursor: 'pointer' }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       <div className="chat-messages">
         {messages.map((msg) => (
@@ -186,7 +207,7 @@ export default function CandidatePage() {
               className="textarea"
               value={inputText || (isRecording ? transcript : '')}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder={isRecording ? '正在录音，请说话...' : '请输入您的回答...'}
+              placeholder={isRecording ? (isConnected ? '正在录音，请说话...' : '正在连接...') : '请输入您的回答...'}
               disabled={isStreaming}
               style={{ minHeight: '60px', resize: 'none' }}
             />

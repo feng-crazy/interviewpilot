@@ -23,11 +23,11 @@ class Settings:
     # DashScope API (阿里云)
     DASHSCOPE_API_KEY: Optional[str] = None
     DASHSCOPE_API_URL: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
-    DASHSCOPE_MODEL: str = "qwen-plus"
+    DASHSCOPE_MODEL: str = "qwen3.5-flash-2026-02-23"
 
     # Paraformer Speech Recognition
     PARAFORMER_WS_URL: str = "wss://dashscope.aliyuncs.com/api-ws/v1/inference"
-    PARAFORMER_MODEL: str = "paraformer-realtime-v2"
+    PARAFORMER_MODEL: str = "fun-asr-realtime"
 
     # LLM Settings
     LLM_MAX_TOKENS: int = 2000
