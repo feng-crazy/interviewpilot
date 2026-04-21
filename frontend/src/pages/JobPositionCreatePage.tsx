@@ -118,6 +118,7 @@ export default function JobPositionCreatePage() {
               value={formData.jd_text}
               onChange={(e) => setFormData({ ...formData, jd_text: e.target.value })}
               placeholder="请输入岗位描述、技能要求、工作职责等..."
+              rows={16}
               required
             />
           </div>
@@ -140,6 +141,7 @@ export default function JobPositionCreatePage() {
               value={formData.company_info}
               onChange={(e) => setFormData({ ...formData, company_info: e.target.value })}
               placeholder="公司名称、行业、业务简介、企业文化等..."
+              rows={16}
               required
             />
           </div>
@@ -166,6 +168,7 @@ export default function JobPositionCreatePage() {
               value={formData.interviewer_info}
               onChange={(e) => setFormData({ ...formData, interviewer_info: e.target.value })}
               placeholder="面试官职位、性格特点、提问风格、个人偏好等..."
+              rows={16}
               required
             />
           </div>
@@ -188,6 +191,7 @@ export default function JobPositionCreatePage() {
               value={formData.interview_scheme}
               onChange={(e) => setFormData({ ...formData, interview_scheme: e.target.value })}
               placeholder="面试轮次、考察重点、考察维度、时间分配、面试方法/工具、其他要求等..."
+              rows={16}
               required
             />
           </div>

@@ -192,11 +192,10 @@ export default function JobPositionDetailPage() {
           <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginBottom: 'var(--spacing-xs)' }}>岗位JD</p>
           {isEditing ? (
             <textarea
-              className="form-textarea"
+              className="textarea"
               value={formData.jd_text || ''}
               onChange={(e) => handleInputChange('jd_text', e.target.value)}
-              rows={6}
-              style={{ fontSize: '0.875rem', width: '100%', resize: 'vertical' }}
+              rows={16}
             />
           ) : (
             <p style={{ fontSize: '0.875rem', whiteSpace: 'pre-wrap' }}>{position.jd_text}</p>
@@ -208,11 +207,10 @@ export default function JobPositionDetailPage() {
           <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginBottom: 'var(--spacing-xs)' }}>公司信息</p>
           {isEditing ? (
             <textarea
-              className="form-textarea"
+              className="textarea"
               value={formData.company_info || ''}
               onChange={(e) => handleInputChange('company_info', e.target.value)}
-              rows={4}
-              style={{ fontSize: '0.875rem', width: '100%', resize: 'vertical' }}
+              rows={16}
             />
           ) : (
             <p style={{ fontSize: '0.875rem', whiteSpace: 'pre-wrap' }}>{position.company_info}</p>
@@ -224,11 +222,10 @@ export default function JobPositionDetailPage() {
           <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginBottom: 'var(--spacing-xs)' }}>面试偏好信息</p>
           {isEditing ? (
             <textarea
-              className="form-textarea"
+              className="textarea"
               value={formData.interviewer_info || ''}
               onChange={(e) => handleInputChange('interviewer_info', e.target.value)}
-              rows={4}
-              style={{ fontSize: '0.875rem', width: '100%', resize: 'vertical' }}
+              rows={16}
             />
           ) : (
             <p style={{ fontSize: '0.875rem', whiteSpace: 'pre-wrap' }}>{position.interviewer_info}</p>
@@ -240,11 +237,10 @@ export default function JobPositionDetailPage() {
           <p style={{ fontSize: '0.75rem', color: 'var(--color-gray-500)', marginBottom: 'var(--spacing-xs)' }}>面试方案</p>
           {isEditing ? (
             <textarea
-              className="form-textarea"
+              className="textarea"
               value={formData.interview_scheme || ''}
               onChange={(e) => handleInputChange('interview_scheme', e.target.value)}
-              rows={4}
-              style={{ fontSize: '0.875rem', width: '100%', resize: 'vertical' }}
+              rows={16}
             />
           ) : (
             <p style={{ fontSize: '0.875rem', whiteSpace: 'pre-wrap' }}>{position.interview_scheme}</p>
