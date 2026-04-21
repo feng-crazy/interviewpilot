@@ -3,38 +3,36 @@ import { Link } from 'react-router-dom';
 import { getInterviewHistory, deleteInterview } from '../services/api';
 import type { InterviewListItem } from '../types/interview';
 
+const PAGE_SIZE = 10;
+
 export default function HistoryPage() {
   const [interviews, setInterviews] = useState<InterviewListItem[]>([]);
-  const [filteredInterviews, setFilteredInterviews] = useState<InterviewListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [total, setTotal] = useState(0);
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+
+  const fetchInterviews = async (page: number, status: string, date: string) => {
+    setLoading(true);
+    const offset = (page - 1) * PAGE_SIZE;
+    const data = await getInterviewHistory(PAGE_SIZE, offset, status, date);
+    setInterviews(data.items);
+    setTotal(data.total);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    getInterviewHistory().then((data) => {
-      setInterviews(data.items);
-      setFilteredInterviews(data.items);
-      setLoading(false);
-    });
-  }, []);
+    fetchInterviews(currentPage, statusFilter, dateFilter);
+  }, [currentPage, statusFilter, dateFilter]);
 
   useEffect(() => {
-    let filtered = interviews;
-    
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(item => item.status === statusFilter);
+    if (statusFilter !== 'all' || dateFilter) {
+      setCurrentPage(1);
     }
-    
-    if (dateFilter) {
-      const filterDate = new Date(dateFilter);
-      filtered = filtered.filter(item => {
-        const itemDate = new Date(item.created_at);
-        return itemDate >= filterDate;
-      });
-    }
-    
-    setFilteredInterviews(filtered);
-  }, [statusFilter, dateFilter, interviews]);
+  }, [statusFilter, dateFilter]);
 
   const handleDelete = async (interviewId: string) => {
     if (!window.confirm('确定要删除这条面试记录吗？此操作不可撤销。')) {
@@ -42,15 +40,94 @@ export default function HistoryPage() {
     }
     try {
       await deleteInterview(interviewId);
-      const data = await getInterviewHistory();
-      setInterviews(data.items);
-      setFilteredInterviews(data.items);
+      fetchInterviews(currentPage, statusFilter, dateFilter);
     } catch (error) {
       alert('删除失败，请稍后重试');
     }
   };
 
-  if (loading) {
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const renderPagination = () => {
+    if (total <= PAGE_SIZE) return null;
+
+    const pages = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage < maxVisiblePages - 1) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    return (
+      <div className="pagination">
+        <span className="pagination-info">
+          共 {total} 条记录，第 {currentPage}/{totalPages} 页
+        </span>
+
+        <button
+          className="pagination-button pagination-nav-button"
+          onClick={() => handlePageChange(1)}
+          disabled={currentPage === 1}
+        >
+          首页
+        </button>
+
+        <button
+          className="pagination-button pagination-nav-button"
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          上一页
+        </button>
+
+        {startPage > 1 && (
+          <span style={{ color: 'var(--color-gray-500)' }}>...</span>
+        )}
+
+        {pages.map((page) => (
+          <button
+            key={page}
+            className={`pagination-button ${currentPage === page ? 'active' : ''}`}
+            onClick={() => handlePageChange(page)}
+          >
+            {page}
+          </button>
+        ))}
+
+        {endPage < totalPages && (
+          <span style={{ color: 'var(--color-gray-500)' }}>...</span>
+        )}
+
+        <button
+          className="pagination-button pagination-nav-button"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          下一页
+        </button>
+
+        <button
+          className="pagination-button pagination-nav-button"
+          onClick={() => handlePageChange(totalPages)}
+          disabled={currentPage === totalPages}
+        >
+          末页
+        </button>
+      </div>
+    );
+  };
+
+  if (loading && interviews.length === 0) {
     return (
       <div className="empty-state">
         <span className="loading-spinner"></span>
@@ -67,13 +144,13 @@ export default function HistoryPage() {
           创建新面试
         </Link>
       </div>
-      
+
       <div style={{ display: 'flex', gap: 'var(--spacing-lg)', alignItems: 'center', marginBottom: 'var(--spacing-lg)', padding: 'var(--spacing-md)', background: 'var(--color-gray-50)', borderRadius: 'var(--radius-lg)' }}>
         <div>
           <label className="label" style={{ marginBottom: 'var(--spacing-xs)' }}>状态筛选</label>
-          <select 
-            className="input" 
-            value={statusFilter} 
+          <select
+            className="input"
+            value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             style={{ width: 'auto', minWidth: '120px' }}
           >
@@ -83,20 +160,20 @@ export default function HistoryPage() {
             <option value="ended">已结束</option>
           </select>
         </div>
-        
+
         <div>
           <label className="label" style={{ marginBottom: 'var(--spacing-xs)' }}>时间筛选</label>
-          <input 
-            type="date" 
-            className="input" 
-            value={dateFilter} 
+          <input
+            type="date"
+            className="input"
+            value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
             style={{ width: 'auto' }}
           />
         </div>
       </div>
-      
-      {filteredInterviews.length === 0 ? (
+
+      {interviews.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-icon">📋</div>
           <div className="empty-state-title">暂无面试记录</div>
@@ -106,18 +183,18 @@ export default function HistoryPage() {
         </div>
       ) : (
         <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-gray-200)' }}>
-          {filteredInterviews.map((item, index) => (
-            <div 
-              key={item.id} 
+          {interviews.map((item, index) => (
+            <div
+              key={item.id}
               className="list-item"
-              style={{ 
+              style={{
                 borderTop: index === 0 ? 'none' : '1px solid var(--color-gray-200)',
               }}
             >
               <div style={{ flex: 1 }}>
                 <p className="list-item-title">{item.jd_text.slice(0, 60)}...</p>
                 <p className="list-item-meta">
-                  面试官: {item.interviewer_info.slice(0, 20)}... | 
+                  面试官: {item.interviewer_info.slice(0, 20)}... |
                   时间: {new Date(item.created_at).toLocaleDateString('zh-CN')}
                 </p>
               </div>
@@ -126,15 +203,15 @@ export default function HistoryPage() {
                   item.status === 'ended' ? 'status-badge-neutral' :
                   item.status === 'ongoing' ? 'status-badge-success' : 'status-badge-warning'
                 }`}>
-                  {item.status === 'pending' ? '待开始' : 
+                  {item.status === 'pending' ? '待开始' :
                    item.status === 'ongoing' ? '进行中' : '已结束'}
                 </span>
                 <Link to={`/detail/${item.id}`} className="button button-ghost">
                   查看详情
                 </Link>
                 {item.status === 'ended' && (
-                  <button 
-                    className="button button-ghost" 
+                  <button
+                    className="button button-ghost"
                     style={{ color: 'var(--color-error-600)' }}
                     onClick={() => handleDelete(item.id)}
                   >
@@ -146,6 +223,8 @@ export default function HistoryPage() {
           ))}
         </div>
       )}
+
+      {renderPagination()}
     </div>
   );
 }

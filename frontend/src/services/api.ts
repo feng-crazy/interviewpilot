@@ -20,8 +20,20 @@ export const getInterviewConfig = async (id: string) => {
   return response.data;
 };
 
-export const getInterviewHistory = async (limit = 50, offset = 0) => {
-  const response = await api.get(`/interview/history`, { params: { limit, offset } });
+export const getInterviewHistory = async (
+  limit = 50,
+  offset = 0,
+  status?: string,
+  dateFrom?: string
+) => {
+  const params: Record<string, string | number> = { limit, offset };
+  if (status && status !== 'all') {
+    params.status = status;
+  }
+  if (dateFrom) {
+    params.date_from = dateFrom;
+  }
+  const response = await api.get(`/interview/history`, { params });
   return response.data;
 };
 

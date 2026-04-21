@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import uuid
+from datetime import datetime
+from typing import Optional
 
 from ...database import (
     get_db,
@@ -70,17 +72,29 @@ async def create_interview(
 
 @router.get("/history", response_model=InterviewListResponse)
 async def get_interview_history(
-    db: Session = Depends(get_db), limit: int = 50, offset: int = 0
+    db: Session = Depends(get_db),
+    limit: int = 50,
+    offset: int = 0,
+    status: Optional[str] = None,
+    date_from: Optional[str] = None,
 ):
+    query = db.query(Interview)
+
+    if status and status != "all":
+        query = query.filter(Interview.status == status)
+
+    if date_from:
+        try:
+            filter_date = datetime.strptime(date_from, "%Y-%m-%d")
+            query = query.filter(Interview.created_at >= filter_date)
+        except ValueError:
+            pass
+
     interviews = (
-        db.query(Interview)
-        .order_by(Interview.created_at.desc())
-        .offset(offset)
-        .limit(limit)
-        .all()
+        query.order_by(Interview.created_at.desc()).offset(offset).limit(limit).all()
     )
 
-    total = db.query(Interview).count()
+    total = query.count()
 
     items = [
         InterviewListItem(

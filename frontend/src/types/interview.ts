@@ -128,7 +128,7 @@ export interface JobPositionUpdateRequest {
 export interface JobPositionListItem {
   id: string;
   name: string;
-  jd_text_preview: string;  // First 100 chars
+  jd_text: string;
   created_at: string;
 }
 
