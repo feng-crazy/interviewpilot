@@ -10,7 +10,6 @@ from .api.routes.chat import router as chat_router
 from .api.routes.control import router as control_router
 from .api.routes.websocket import router as websocket_router
 from .api.routes.report import router as report_router
-from .api.routes.speech import router as speech_router
 from .api.routes.optimize import router as optimize_router
 from .api.routes.job_position import router as job_position_router
 from .api.routes.resume import router as resume_router
@@ -44,7 +43,14 @@ app.include_router(chat_router, tags=["chat"])
 app.include_router(control_router, tags=["control"])
 app.include_router(websocket_router, tags=["websocket"])
 app.include_router(report_router, tags=["report"])
-app.include_router(speech_router, tags=["speech"])
+
+# Speech recognition is optional - requires dashscope package
+try:
+    from .api.routes.speech import router as speech_router
+    app.include_router(speech_router, tags=["speech"])
+except ImportError:
+    pass
+
 app.include_router(optimize_router, tags=["optimize"])
 app.include_router(
     job_position_router, prefix="/api/job-position", tags=["job_position"]

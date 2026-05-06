@@ -1,19 +1,34 @@
 """Speech recognition service using DashScope SDK Recognition class."""
 
+from __future__ import annotations
+
 import asyncio
 import threading
 from queue import Queue
 
-import dashscope
-from dashscope.audio.asr import Recognition, RecognitionCallback, RecognitionResult
+try:
+    import dashscope
+    from dashscope.audio.asr import Recognition, RecognitionCallback, RecognitionResult
+
+    DASHSCOPE_AVAILABLE = True
+except ImportError:
+    DASHSCOPE_AVAILABLE = False
 
 from ..config import get_settings
 from ..config.logging import get_logger
 
 settings = get_settings()
+logger = get_logger("speech_service")
+
+if not DASHSCOPE_AVAILABLE:
+    logger.warning(
+        "dashscope_sdk_not_installed",
+        msg="dashscope package not installed. Speech recognition features will be unavailable. "
+        "Install with: pip install dashscope",
+    )
 
 
-class SpeechRecognitionCallback(RecognitionCallback):
+class SpeechRecognitionCallback(RecognitionCallback if DASHSCOPE_AVAILABLE else object):
     """Callback for DashScope Recognition that pushes results to a queue."""
 
     def __init__(self, result_queue: Queue, logger):
@@ -27,12 +42,12 @@ class SpeechRecognitionCallback(RecognitionCallback):
     def on_close(self) -> None:
         self.logger.info("speech_ws_closed")
         self._completed = True
-        self.result_queue.put(None)  # Signal completion
+        self.result_queue.put(None)
 
     def on_complete(self) -> None:
         self.logger.info("speech_recognition_completed")
         self._completed = True
-        self.result_queue.put(None)  # Signal completion
+        self.result_queue.put(None)
 
     def on_error(self, result: RecognitionResult) -> None:
         self.logger.error(
@@ -77,9 +92,9 @@ class SpeechService:
         self.ws_url = settings.PARAFORMER_WS_URL
         self.logger = get_logger("speech_service")
 
-        # Configure DashScope
-        dashscope.api_key = self.api_key
-        dashscope.base_websocket_api_url = self.ws_url
+        if DASHSCOPE_AVAILABLE:
+            dashscope.api_key = self.api_key
+            dashscope.base_websocket_api_url = self.ws_url
 
     async def transcribe_websocket(self, websocket):
         """Handle WebSocket connection for real-time speech recognition.
@@ -90,28 +105,22 @@ class SpeechService:
         await websocket.accept()
         self.logger.info("speech_websocket_accepted")
 
-        # Create queue for results from callback
         result_queue = Queue()
-
-        # Create callback
         callback = SpeechRecognitionCallback(result_queue, self.logger)
 
-        # Create Recognition instance
         recognition = Recognition(
             model=self.model, format="pcm", sample_rate=16000, callback=callback
         )
 
-        # Thread for sending audio to recognition
         audio_queue = Queue()
         stop_event = threading.Event()
 
         def audio_sender():
-            """Thread that sends audio chunks to Recognition."""
             try:
                 while not stop_event.is_set():
                     try:
                         chunk = audio_queue.get(timeout=0.1)
-                        if chunk is None:  # Stop signal
+                        if chunk is None:
                             break
                         recognition.send_audio_frame(chunk)
                     except Exception:
@@ -119,35 +128,28 @@ class SpeechService:
             except Exception as e:
                 self.logger.error("audio_sender_error", error=str(e))
 
-        # Start recognition
         try:
             recognition.start()
             self.logger.info("speech_recognition_started")
 
-            # Start audio sender thread
             sender_thread = threading.Thread(target=audio_sender, daemon=True)
             sender_thread.start()
 
-            # Main loop: receive audio from frontend, forward to recognition,
-            # and send results back to frontend
             async def receive_audio():
-                """Receive audio chunks from frontend WebSocket."""
                 try:
                     while True:
                         data = await websocket.receive_bytes()
                         audio_queue.put(data)
                 except Exception:
-                    audio_queue.put(None)  # Signal stop
+                    audio_queue.put(None)
 
             async def send_results():
-                """Send transcription results to frontend WebSocket."""
                 while not callback.is_completed():
                     try:
-                        # Check queue with timeout to allow checking completion
                         result = await asyncio.get_event_loop().run_in_executor(
                             None, lambda: result_queue.get(timeout=0.1)
                         )
-                        if result is None:  # Completion signal
+                        if result is None:
                             break
                         if "error" in result:
                             await websocket.send_json(result)
@@ -156,21 +158,17 @@ class SpeechService:
                     except Exception:
                         continue
 
-            # Run both tasks concurrently
             receive_task = asyncio.create_task(receive_audio())
             send_task = asyncio.create_task(send_results())
 
-            # Wait for send_task to complete (transcription done)
             await send_task
 
-            # Cancel receive task if still running
             receive_task.cancel()
             try:
                 await receive_task
             except asyncio.CancelledError:
                 pass
 
-            # Stop recognition
             stop_event.set()
             recognition.stop()
             sender_thread.join(timeout=2)
@@ -195,4 +193,4 @@ class SpeechService:
             await websocket.close()
 
 
-speech_service = SpeechService()
+speech_service = SpeechService() if DASHSCOPE_AVAILABLE else None
